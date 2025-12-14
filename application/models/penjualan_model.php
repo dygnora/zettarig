@@ -1,0 +1,108 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Penjualan_model extends CI_Model
+{
+    /**
+     * Ambil semua penjualan (LIST)
+     * Dipakai di admin/penjualan
+     */
+    public function get_all()
+    {
+        return $this->db
+            ->select('
+                p.id_penjualan,
+                p.tanggal_pesanan,
+                p.total_harga,
+                p.metode_pembayaran,
+                p.status_pesanan,
+                c.nama AS nama_customer
+            ')
+            ->from('penjualan p')
+            ->join('customer c', 'c.id_customer = p.id_customer')
+            ->order_by('p.tanggal_pesanan', 'DESC')
+            ->get()
+            ->result();
+    }
+
+    /**
+     * Ambil header penjualan (DETAIL)
+     */
+    public function get_by_id($id_penjualan)
+    {
+        return $this->db
+            ->select('
+                p.*,
+                c.nama AS nama_customer,
+                c.email,
+                c.no_hp
+            ')
+            ->from('penjualan p')
+            ->join('customer c', 'c.id_customer = p.id_customer')
+            ->where('p.id_penjualan', $id_penjualan)
+            ->get()
+            ->row();
+    }
+
+    /**
+     * Ambil detail item penjualan
+     */
+    public function get_detail($id_penjualan)
+    {
+        return $this->db
+            ->select('
+                d.jumlah,
+                d.harga_satuan,
+                d.subtotal,
+                pr.nama_produk
+            ')
+            ->from('detail_penjualan d')
+            ->join('produk pr', 'pr.id_produk = d.id_produk')
+            ->where('d.id_penjualan', $id_penjualan)
+            ->get()
+            ->result();
+    }
+
+    /**
+     * Ambil timeline pesanan
+     */
+    public function get_timeline($id_penjualan)
+    {
+        return $this->db
+            ->from('timeline_pesanan')
+            ->where('id_penjualan', $id_penjualan)
+            ->order_by('waktu', 'ASC')
+            ->get()
+            ->result();
+    }
+
+    /**
+     * Hitung total penjualan (dashboard)
+     */
+    public function count_all()
+    {
+        return $this->db->count_all('penjualan');
+    }
+
+    /**
+     * Hitung total pendapatan (dashboard)
+     */
+    public function total_pendapatan()
+    {
+        return $this->db
+            ->select_sum('total_harga')
+            ->get('penjualan')
+            ->row()
+            ->total_harga;
+    }
+
+    /**
+     * Hitung pesanan menunggu verifikasi
+     */
+    public function count_menunggu()
+    {
+        return $this->db
+            ->where('status_pesanan', 'dibuat')
+            ->count_all_results('penjualan');
+    }
+}
