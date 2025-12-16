@@ -48,7 +48,7 @@ class Auth_admin extends CI_Controller
         $this->session->set_flashdata('error', 'Username atau password salah');
         redirect('admin/auth/login');
     }
-
+    // fungsi logout
     public function logout()
     {
         $this->session->sess_destroy();
