@@ -14,6 +14,7 @@ class MY_Controller extends CI_Controller {
         if ($this->is_admin) {
             if (!$this->session->userdata('admin_logged_in')) {
                 redirect('admin/auth/login');
+                exit;
             }
         }
 

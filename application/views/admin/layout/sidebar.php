@@ -18,7 +18,7 @@
     <div class="user-panel mt-2 pb-2 mb-2 d-flex">
       <div class="info">
         <a href="#" class="d-block">
-          <?= htmlspecialchars($this->session->userdata('admin_name') ?? 'Admin'); ?>
+          <?= htmlspecialchars($this->session->userdata('admin_nama') ?? 'Admin'); ?>
         </a>
         <small class="text-muted">Administrator</small>
       </div>

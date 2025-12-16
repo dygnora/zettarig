@@ -31,11 +31,7 @@
 
             <div class="form-group">
               <label>Nama Produk</label>
-              <input type="text"
-                     name="nama_produk"
-                     class="form-control"
-                     placeholder="Contoh: RAM DDR4 8GB"
-                     required>
+              <input type="text" name="nama_produk" class="form-control" required>
             </div>
 
             <div class="form-group">
@@ -63,12 +59,20 @@
             </div>
 
             <div class="form-group">
-              <label>Harga</label>
-              <input type="number"
-                     name="harga"
-                     class="form-control"
-                     placeholder="Harga produk"
-                     required>
+              <label>Supplier</label>
+              <select name="id_supplier" class="form-control">
+                <option value="">-- Tidak ada --</option>
+                <?php foreach ($supplier as $s): ?>
+                  <option value="<?= $s->id_supplier; ?>">
+                    <?= htmlspecialchars($s->nama_supplier); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Harga Jual</label>
+              <input type="number" name="harga" class="form-control" required>
             </div>
 
             <div class="form-group">
@@ -85,7 +89,6 @@
             <a href="<?= base_url('admin/produk'); ?>" class="btn btn-secondary btn-sm">
               <i class="fas fa-arrow-left"></i> Kembali
             </a>
-
             <button type="submit" class="btn btn-primary btn-sm float-right">
               <i class="fas fa-save"></i> Simpan
             </button>

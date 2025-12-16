@@ -28,7 +28,7 @@
         </a>
 
         <form method="get" action="<?= base_url('admin/produk'); ?>">
-          <div class="input-group input-group-sm" style="width: 260px;">
+          <div class="input-group input-group-sm" style="width:260px;">
             <input type="text"
                    name="q"
                    class="form-control"
@@ -53,69 +53,76 @@
           <table class="table table-bordered table-hover">
             <thead>
               <tr>
-                <th style="width:60px">No</th>
+                <th style="width:50px">No</th>
                 <th>Nama Produk</th>
-                <th style="width:160px">Kategori</th>
-                <th style="width:160px">Brand</th>
-                <th style="width:140px">Harga</th>
-                <th style="width:100px" class="text-center">Status</th>
+                <th style="width:140px">Kategori</th>
+                <th style="width:140px">Brand</th>
+                <th style="width:160px">Supplier</th>
+                <th style="width:90px" class="text-center">Gambar</th>
+                <th style="width:130px">Harga</th>
+                <th style="width:90px" class="text-center">Status</th>
                 <th style="width:150px" class="text-center">Aksi</th>
               </tr>
             </thead>
             <tbody>
 
-              <?php if (!empty($produk)) : ?>
-                <?php $no = 1 + ($offset ?? 0); ?>
-                <?php foreach ($produk as $p) : ?>
-                  <tr>
-                    <td><?= $no++; ?></td>
-
-                    <td>
-                      <strong><?= htmlspecialchars($p->nama_produk); ?></strong>
-                    </td>
-
-                    <td><?= htmlspecialchars($p->nama_kategori); ?></td>
-                    <td><?= htmlspecialchars($p->nama_brand); ?></td>
-
-                    <td>
-                      Rp <?= number_format($p->harga_jual, 0, ',', '.'); ?>
-                    </td>
-
-                    <td class="text-center">
-                      <?= $p->status_aktif
-                        ? '<span class="badge bg-success">Aktif</span>'
-                        : '<span class="badge bg-secondary">Nonaktif</span>'; ?>
-                    </td>
-
-                    <td class="text-center">
-                      <a href="<?= base_url('admin/produk/edit/'.$p->id_produk); ?>"
-                         class="btn btn-warning btn-sm">
-                        <i class="fas fa-edit"></i>
-                      </a>
-
-                      <?php if ($p->status_aktif): ?>
-                        <a href="<?= base_url('admin/produk/nonaktif/'.$p->id_produk); ?>"
-                           class="btn btn-danger btn-sm"
-                           onclick="return confirm('Nonaktifkan produk ini?')">
-                          <i class="fas fa-times"></i>
-                        </a>
-                      <?php else: ?>
-                        <a href="<?= base_url('admin/produk/aktif/'.$p->id_produk); ?>"
-                           class="btn btn-success btn-sm"
-                           onclick="return confirm('Aktifkan produk ini?')">
-                          <i class="fas fa-check"></i>
-                        </a>
-                      <?php endif; ?>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-              <?php else : ?>
+            <?php if (!empty($produk)) : ?>
+              <?php $no = 1 + ($offset ?? 0); ?>
+              <?php foreach ($produk as $p) : ?>
                 <tr>
-                  <td colspan="7" class="text-center text-muted">
-                    Data tidak ditemukan
+                  <td><?= $no++; ?></td>
+
+                  <td><strong><?= htmlspecialchars($p->nama_produk); ?></strong></td>
+                  <td><?= htmlspecialchars($p->nama_kategori); ?></td>
+                  <td><?= htmlspecialchars($p->nama_brand); ?></td>
+                  <td><?= htmlspecialchars($p->nama_supplier ?? '-'); ?></td>
+
+                  <td class="text-center">
+                    <?php if (!empty($p->gambar_produk)): ?>
+                      <img src="<?= base_url('uploads/produk/'.$p->gambar_produk); ?>"
+                           style="height:40px">
+                    <?php else: ?>
+                      <span class="text-muted">-</span>
+                    <?php endif; ?>
+                  </td>
+
+                  <td>Rp <?= number_format($p->harga_jual, 0, ',', '.'); ?></td>
+
+                  <td class="text-center">
+                    <?= $p->status_aktif
+                      ? '<span class="badge bg-success">Aktif</span>'
+                      : '<span class="badge bg-secondary">Nonaktif</span>'; ?>
+                  </td>
+
+                  <td class="text-center">
+                    <a href="<?= base_url('admin/produk/edit/'.$p->id_produk); ?>"
+                       class="btn btn-warning btn-sm">
+                      <i class="fas fa-edit"></i>
+                    </a>
+
+                    <?php if ($p->status_aktif): ?>
+                      <a href="<?= base_url('admin/produk/nonaktif/'.$p->id_produk); ?>"
+                         class="btn btn-danger btn-sm"
+                         onclick="return confirm('Nonaktifkan produk ini?')">
+                        <i class="fas fa-times"></i>
+                      </a>
+                    <?php else: ?>
+                      <a href="<?= base_url('admin/produk/aktif/'.$p->id_produk); ?>"
+                         class="btn btn-success btn-sm"
+                         onclick="return confirm('Aktifkan produk ini?')">
+                        <i class="fas fa-check"></i>
+                      </a>
+                    <?php endif; ?>
                   </td>
                 </tr>
-              <?php endif; ?>
+              <?php endforeach; ?>
+            <?php else : ?>
+              <tr>
+                <td colspan="9" class="text-center text-muted">
+                  Data tidak ditemukan
+                </td>
+              </tr>
+            <?php endif; ?>
 
             </tbody>
           </table>

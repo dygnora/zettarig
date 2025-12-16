@@ -3,6 +3,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Dashboard_admin extends MY_Controller
 {
+    // Dashboard wajib login
+    protected $is_admin = true;
+
     public function __construct()
     {
         parent::__construct();
@@ -11,6 +14,8 @@ class Dashboard_admin extends MY_Controller
 
     public function index()
     {
+        $data = $this->data;
+
         // ================= INFO BOX =================
         $data['total_produk']   = $this->Dashboard_model->count_produk();
         $data['stok_menipis']   = $this->Dashboard_model->count_stok_menipis();
@@ -22,7 +27,6 @@ class Dashboard_admin extends MY_Controller
 
         // ================= GRAFIK PENDAPATAN =================
         $grafik = $this->Dashboard_model->get_pendapatan_bulanan();
-
         $bulan_label = [];
         $bulan_pendapatan = [];
 
@@ -34,7 +38,7 @@ class Dashboard_admin extends MY_Controller
             $bulan_pendapatan[] = (int) $g->total;
         }
 
-        $data['bulan_label']      = $bulan_label;
+        $data['bulan_label'] = $bulan_label;
         $data['bulan_pendapatan'] = $bulan_pendapatan;
 
         // ================= TOTAL UANG =================
@@ -48,8 +52,8 @@ class Dashboard_admin extends MY_Controller
         $data['title'] = 'Dashboard';
 
         $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar');
-        $this->load->view('admin/layout/sidebar');
+        $this->load->view('admin/layout/navbar', $data);
+        $this->load->view('admin/layout/sidebar', $data);
         $this->load->view('admin/dashboard/index', $data);
         $this->load->view('admin/layout/footer');
     }

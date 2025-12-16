@@ -5,21 +5,31 @@ class Supplier_model extends CI_Model
 {
     protected $table = 'supplier';
 
+    // ==================================================
+    // HITUNG TOTAL SUPPLIER (UNTUK PAGINATION + SEARCH)
+    // ==================================================
     public function count_all($keyword = null)
     {
         if ($keyword) {
-            $this->db->like('nama_supplier', $keyword);
-            $this->db->or_like('kontak', $keyword);
+            $this->db->group_start()
+                ->like('nama_supplier', $keyword)
+                ->or_like('kontak', $keyword)
+                ->group_end();
         }
 
         return $this->db->count_all_results($this->table);
     }
 
+    // ==================================================
+    // LIST SUPPLIER PAGINATION
+    // ==================================================
     public function get_paginated($limit, $offset, $keyword = null)
     {
         if ($keyword) {
-            $this->db->like('nama_supplier', $keyword);
-            $this->db->or_like('kontak', $keyword);
+            $this->db->group_start()
+                ->like('nama_supplier', $keyword)
+                ->or_like('kontak', $keyword)
+                ->group_end();
         }
 
         return $this->db
@@ -29,6 +39,9 @@ class Supplier_model extends CI_Model
             ->result();
     }
 
+    // ==================================================
+    // AMBIL SUPPLIER BY ID
+    // ==================================================
     public function get_by_id($id)
     {
         return $this->db
@@ -37,11 +50,17 @@ class Supplier_model extends CI_Model
             ->row();
     }
 
+    // ==================================================
+    // INSERT SUPPLIER BARU
+    // ==================================================
     public function insert($data)
     {
         return $this->db->insert($this->table, $data);
     }
 
+    // ==================================================
+    // UPDATE DATA SUPPLIER
+    // ==================================================
     public function update($id, $data)
     {
         return $this->db
@@ -49,17 +68,33 @@ class Supplier_model extends CI_Model
             ->update($this->table, $data);
     }
 
+    // ==================================================
+    // AKTIF / NONAKTIF SUPPLIER
+    // ==================================================
     public function set_status($id, $status)
     {
         return $this->update($id, ['status_aktif' => $status]);
     }
 
+    // ==================================================
+    // AMBIL SEMUA SUPPLIER AKTIF (NAMA LAMA)
+    // ==================================================
     public function get_all_aktif()
     {
         return $this->db
             ->where('status_aktif', 1)
-            ->get('supplier')
+            ->order_by('nama_supplier', 'ASC')
+            ->get($this->table)
             ->result();
     }
 
+    // ==================================================
+    // AMBIL SEMUA SUPPLIER AKTIF (ALIAS BARU)
+    // DIPAKAI OLEH Produk_admin
+    // ==================================================
+    public function get_all_active()
+    {
+        // Alias ke method lama agar konsisten
+        return $this->get_all_aktif();
+    }
 }

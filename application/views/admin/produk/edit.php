@@ -27,7 +27,7 @@
 
         <form action="<?= base_url('admin/produk/update/'.$produk->id_produk); ?>" method="post">
 
-          <div class="card-body py-2">
+          <div class="card-body">
 
             <div class="form-group">
               <label>Nama Produk</label>
@@ -63,7 +63,20 @@
             </div>
 
             <div class="form-group">
-              <label>Harga</label>
+              <label>Supplier</label>
+              <select name="id_supplier" class="form-control">
+                <option value="">-- Tidak ada --</option>
+                <?php foreach ($supplier as $s): ?>
+                  <option value="<?= $s->id_supplier; ?>"
+                    <?= $s->id_supplier == $produk->id_supplier ? 'selected' : ''; ?>>
+                    <?= htmlspecialchars($s->nama_supplier); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Harga Jual</label>
               <input type="number"
                      name="harga"
                      class="form-control"
@@ -74,13 +87,10 @@
           </div>
 
           <div class="card-footer">
-            <a href="<?= base_url('admin/produk'); ?>"
-               class="btn btn-secondary btn-sm">
+            <a href="<?= base_url('admin/produk'); ?>" class="btn btn-secondary btn-sm">
               <i class="fas fa-arrow-left"></i> Kembali
             </a>
-
-            <button type="submit"
-                    class="btn btn-primary btn-sm float-right">
+            <button type="submit" class="btn btn-primary btn-sm float-right">
               <i class="fas fa-save"></i> Simpan Perubahan
             </button>
           </div>
