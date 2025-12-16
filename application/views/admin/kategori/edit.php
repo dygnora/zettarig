@@ -1,4 +1,4 @@
-<div class="content-wrapper">
+
 
   <!-- Content Header -->
   <section class="content-header">
@@ -74,4 +74,3 @@
 
     </div>
   </section>
-</div>

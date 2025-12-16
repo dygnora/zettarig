@@ -1,4 +1,4 @@
-<div class="content-wrapper">
+
 
   <!-- Content Header -->
   <section class="content-header">
@@ -49,7 +49,7 @@
           <h3 class="card-title">Daftar Customer</h3>
         </div>
 
-        <div class="card-body py-0 table-responsive">
+        <div class="card-body py-2">
           <table class="table table-bordered table-hover">
             <thead>
               <tr>
@@ -141,4 +141,4 @@
 
     </div>
   </section>
-</div>
+

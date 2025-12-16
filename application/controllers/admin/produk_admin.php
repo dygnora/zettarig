@@ -3,14 +3,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Produk_admin extends MY_Controller
 {
-    // Semua halaman produk WAJIB login admin
     protected $is_admin = true;
 
     public function __construct()
     {
         parent::__construct();
 
-        // Load model yang dibutuhkan
         $this->load->model([
             'Produk_model',
             'Kategori_model',
@@ -18,30 +16,30 @@ class Produk_admin extends MY_Controller
             'Supplier_model'
         ]);
 
-        // Library & helper
-        $this->load->library(['pagination', 'user_agent']);
+        $this->load->library(['pagination', 'user_agent', 'upload']);
         $this->load->helper(['url', 'text']);
     }
 
     // ==================================================
-    // LIST PRODUK (pagination + search)
+    // LIST PRODUK + SEARCH + PAGINATION
     // ==================================================
     public function index()
     {
         $data = $this->data;
 
-        // Ambil keyword pencarian
         $keyword = $this->input->get('q', true);
+        $page    = (int) $this->input->get('page');
+        $limit   = 10;
+        $offset  = ($page > 0 ? ($page - 1) * $limit : 0);
 
-        // Pagination manual (query string)
-        $page   = (int) $this->input->get('page');
-        $limit  = 10;
-        $offset = ($page > 0 ? ($page - 1) * $limit : 0);
-
-        // Hitung total data (dengan filter)
+        // ==================================================
+        // HITUNG TOTAL PRODUK
+        // ==================================================
         $total = $this->Produk_model->count_all($keyword);
 
-        // Konfigurasi pagination CI3
+        // ==================================================
+        // KONFIGURASI PAGINATION
+        // ==================================================
         $config['base_url']             = base_url('admin/produk');
         $config['total_rows']           = $total;
         $config['per_page']             = $limit;
@@ -50,19 +48,20 @@ class Produk_admin extends MY_Controller
 
         $this->pagination->initialize($config);
 
-        // Data ke view
+        // ==================================================
+        // DATA KE VIEW
+        // ==================================================
         $data['title']      = 'Produk';
         $data['produk']     = $this->Produk_model->get_paginated($limit, $offset, $keyword);
         $data['pagination'] = $this->pagination->create_links();
         $data['keyword']    = $keyword;
         $data['offset']     = $offset;
+        $data['content']    = 'admin/produk/index';
 
-        // Load layout
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/produk/index', $data);
-        $this->load->view('admin/layout/footer');
+        // ==================================================
+        // RENDER VIA TEMPLATE
+        // ==================================================
+        $this->load->view('admin/layout/template', $data);
     }
 
     // ==================================================
@@ -76,12 +75,9 @@ class Produk_admin extends MY_Controller
         $data['kategori'] = $this->Kategori_model->get_all_active();
         $data['brand']    = $this->Brand_model->get_all_active();
         $data['supplier'] = $this->Supplier_model->get_all_active();
+        $data['content']  = 'admin/produk/create';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/produk/create', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 
     // ==================================================
@@ -89,13 +85,17 @@ class Produk_admin extends MY_Controller
     // ==================================================
     public function store()
     {
+        $gambar = $this->upload_gambar();
+
         $data = [
-            'nama_produk'  => $this->input->post('nama_produk', true),
-            'id_kategori'  => $this->input->post('id_kategori'),
-            'id_brand'     => $this->input->post('id_brand'),
-            'id_supplier'  => $this->input->post('id_supplier'),
-            'harga_jual'   => $this->input->post('harga'),
-            'status_aktif' => $this->input->post('status_aktif') ?? 1
+            'nama_produk'   => $this->input->post('nama_produk', true),
+            'id_kategori'   => $this->input->post('id_kategori'),
+            'id_brand'      => $this->input->post('id_brand'),
+            'id_supplier'   => $this->input->post('id_supplier'),
+            'harga_jual'    => $this->input->post('harga_jual'),
+            'stok'          => (int) $this->input->post('stok'),
+            'status_aktif'  => 1,
+            'gambar_produk' => $gambar
         ];
 
         $this->Produk_model->insert($data);
@@ -109,19 +109,17 @@ class Produk_admin extends MY_Controller
     {
         $data = $this->data;
 
-        $data['produk'] = $this->Produk_model->get_by_id($id);
-        if (!$data['produk']) show_404();
+        $produk = $this->Produk_model->get_by_id($id);
+        if (!$produk) show_404();
 
         $data['title']    = 'Edit Produk';
+        $data['produk']   = $produk;
         $data['kategori'] = $this->Kategori_model->get_all_active();
         $data['brand']    = $this->Brand_model->get_all_active();
         $data['supplier'] = $this->Supplier_model->get_all_active();
+        $data['content']  = 'admin/produk/edit';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/produk/edit', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 
     // ==================================================
@@ -129,20 +127,33 @@ class Produk_admin extends MY_Controller
     // ==================================================
     public function update($id)
     {
+        $produk = $this->Produk_model->get_by_id($id);
+        if (!$produk) show_404();
+
+        $gambar = $this->upload_gambar();
+
         $data = [
             'nama_produk' => $this->input->post('nama_produk', true),
             'id_kategori' => $this->input->post('id_kategori'),
             'id_brand'    => $this->input->post('id_brand'),
             'id_supplier' => $this->input->post('id_supplier'),
-            'harga_jual'  => $this->input->post('harga')
+            'harga_jual'  => $this->input->post('harga_jual'),
+            'stok'        => (int) $this->input->post('stok')
         ];
+
+        if ($gambar) {
+            if (!empty($produk->gambar_produk)) {
+                @unlink(FCPATH.'assets/uploads/produk/'.$produk->gambar_produk);
+            }
+            $data['gambar_produk'] = $gambar;
+        }
 
         $this->Produk_model->update($id, $data);
         redirect('admin/produk');
     }
 
     // ==================================================
-    // AKTIF / NONAKTIF PRODUK
+    // AKTIFKAN / NONAKTIFKAN PRODUK
     // ==================================================
     public function aktif($id)
     {
@@ -154,5 +165,33 @@ class Produk_admin extends MY_Controller
     {
         $this->Produk_model->set_status($id, 0);
         redirect($this->agent->referrer());
+    }
+
+    // ==================================================
+    // UPLOAD GAMBAR PRODUK (PRIVATE)
+    // ==================================================
+    private function upload_gambar()
+    {
+        if (empty($_FILES['gambar']['name'])) {
+            return null;
+        }
+
+        $config['upload_path']   = FCPATH.'assets/uploads/produk/';
+        $config['allowed_types'] = 'jpg|jpeg|png';
+        $config['max_size']      = 2048;
+        $config['encrypt_name']  = true;
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('gambar_produk')) {
+            $this->session->set_flashdata(
+                'error',
+                $this->upload->display_errors('', '')
+            );
+            redirect($this->agent->referrer());
+            exit;
+        }
+
+        return $this->upload->data('file_name');
     }
 }

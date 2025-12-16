@@ -13,17 +13,26 @@ class Supplier_admin extends MY_Controller
         $this->load->helper(['url', 'text']);
     }
 
+    // ==================================================
+    // LIST SUPPLIER + SEARCH + PAGINATION
+    // ==================================================
     public function index()
     {
         $data = $this->data;
 
-        $keyword = $this->input->get('q');
+        $keyword = $this->input->get('q', true);
         $page    = (int) $this->input->get('page');
         $limit   = 10;
         $offset  = ($page > 0 ? ($page - 1) * $limit : 0);
 
+        // ==================================================
+        // HITUNG TOTAL SUPPLIER
+        // ==================================================
         $total = $this->Supplier_model->count_all($keyword);
 
+        // ==================================================
+        // KONFIGURASI PAGINATION
+        // ==================================================
         $config['base_url']             = base_url('admin/supplier');
         $config['total_rows']           = $total;
         $config['per_page']             = $limit;
@@ -32,47 +41,55 @@ class Supplier_admin extends MY_Controller
 
         $this->pagination->initialize($config);
 
+        // ==================================================
+        // DATA KE VIEW
+        // ==================================================
         $data['title']      = 'Supplier';
         $data['supplier']   = $this->Supplier_model->get_paginated($limit, $offset, $keyword);
         $data['pagination'] = $this->pagination->create_links();
         $data['keyword']    = $keyword;
         $data['offset']     = $offset;
+        $data['content']    = 'admin/supplier/index';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/supplier/index', $data);
-        $this->load->view('admin/layout/footer');
+        // ==================================================
+        // RENDER VIA TEMPLATE
+        // ==================================================
+        $this->load->view('admin/layout/template', $data);
     }
 
+    // ==================================================
+    // FORM TAMBAH SUPPLIER
+    // ==================================================
     public function create()
     {
         $data = $this->data;
-        $data['title'] = 'Tambah Supplier';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/supplier/create', $data);
-        $this->load->view('admin/layout/footer');
+        $data['title']   = 'Tambah Supplier';
+        $data['content'] = 'admin/supplier/create';
+
+        $this->load->view('admin/layout/template', $data);
     }
 
+    // ==================================================
+    // FORM EDIT SUPPLIER
+    // ==================================================
     public function edit($id)
     {
         $data = $this->data;
 
-        $data['supplier'] = $this->Supplier_model->get_by_id($id);
-        if (!$data['supplier']) show_404();
+        $supplier = $this->Supplier_model->get_by_id($id);
+        if (!$supplier) show_404();
 
-        $data['title'] = 'Edit Supplier';
+        $data['title']    = 'Edit Supplier';
+        $data['supplier'] = $supplier;
+        $data['content']  = 'admin/supplier/edit';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/supplier/edit', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 
+    // ==================================================
+    // SIMPAN SUPPLIER BARU
+    // ==================================================
     public function store()
     {
         $data = [
@@ -86,6 +103,9 @@ class Supplier_admin extends MY_Controller
         redirect('admin/supplier');
     }
 
+    // ==================================================
+    // UPDATE SUPPLIER
+    // ==================================================
     public function update($id)
     {
         $data = [
@@ -98,12 +118,18 @@ class Supplier_admin extends MY_Controller
         redirect('admin/supplier');
     }
 
+    // ==================================================
+    // AKTIFKAN SUPPLIER
+    // ==================================================
     public function aktif($id)
     {
         $this->Supplier_model->set_status($id, 1);
         redirect($this->agent->referrer());
     }
 
+    // ==================================================
+    // NONAKTIFKAN SUPPLIER
+    // ==================================================
     public function nonaktif($id)
     {
         $this->Supplier_model->set_status($id, 0);

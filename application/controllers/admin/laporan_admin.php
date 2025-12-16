@@ -13,9 +13,9 @@ class Laporan_admin extends MY_Controller
         $this->load->model('Laporan_model');
     }
 
-    /* =========================================================
-     * LAPORAN UTAMA (GROUP BY CUSTOMER)
-     * ========================================================= */
+    // ==================================================
+    // LAPORAN PENJUALAN (GROUP BY CUSTOMER)
+    // ==================================================
     public function index()
     {
         $data = $this->data;
@@ -28,20 +28,17 @@ class Laporan_admin extends MY_Controller
         $data['mode']    = $mode;
         $data['start']   = $start;
         $data['end']     = $end;
-
         $data['laporan'] = $this->Laporan_model
             ->laporan_penjualan_group_user($mode, $start, $end);
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/laporan/index', $data);
-        $this->load->view('admin/layout/footer');
+        $data['content'] = 'admin/laporan/index';
+
+        $this->load->view('admin/layout/template', $data);
     }
 
-    /* =========================================================
-     * DETAIL LAPORAN PER CUSTOMER
-     * ========================================================= */
+    // ==================================================
+    // DETAIL LAPORAN PER CUSTOMER
+    // ==================================================
     public function user($id_customer)
     {
         $data = $this->data;
@@ -62,16 +59,14 @@ class Laporan_admin extends MY_Controller
         $data['detail'] = $this->Laporan_model
             ->detail_penjualan_user($id_customer, $mode, $start, $end);
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/laporan/detail_user', $data);
-        $this->load->view('admin/layout/footer');
+        $data['content'] = 'admin/laporan/detail_user';
+
+        $this->load->view('admin/layout/template', $data);
     }
 
-    /* =========================================================
-     * EXPORT PDF
-     * ========================================================= */
+    // ==================================================
+    // EXPORT LAPORAN KE PDF
+    // ==================================================
     public function export_pdf()
     {
         $mode  = $this->input->get('mode') ?: 'harian';
@@ -92,9 +87,9 @@ class Laporan_admin extends MY_Controller
         $dompdf->stream('laporan_penjualan.pdf', ['Attachment' => false]);
     }
 
-    /* =========================================================
-     * EXPORT EXCEL (CSV)
-     * ========================================================= */
+    // ==================================================
+    // EXPORT LAPORAN KE EXCEL (CSV)
+    // ==================================================
     public function export_excel()
     {
         $mode  = $this->input->get('mode') ?: 'harian';

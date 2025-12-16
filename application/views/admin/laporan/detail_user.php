@@ -1,4 +1,3 @@
-<div class="content-wrapper">
 
   <!-- HEADER -->
   <section class="content-header">
@@ -88,4 +87,3 @@
 
     </div>
   </section>
-</div>

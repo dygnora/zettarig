@@ -18,26 +18,23 @@ class Pembelian_supplier_admin extends MY_Controller
         $this->load->helper(['url']);
     }
 
-    // ===============================
-    // INDEX
-    // ===============================
+    // ==================================================
+    // LIST PEMBELIAN SUPPLIER
+    // ==================================================
     public function index()
     {
         $data = $this->data;
 
         $data['title']     = 'Pembelian Supplier';
         $data['pembelian'] = $this->Pembelian_supplier_model->get_all_with_supplier();
+        $data['content']   = 'admin/pembelian_supplier/index';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/pembelian_supplier/index', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 
-    // ===============================
-    // CREATE
-    // ===============================
+    // ==================================================
+    // FORM TAMBAH PEMBELIAN SUPPLIER
+    // ==================================================
     public function create()
     {
         $data = $this->data;
@@ -45,17 +42,14 @@ class Pembelian_supplier_admin extends MY_Controller
         $data['title']    = 'Tambah Pembelian Supplier';
         $data['supplier'] = $this->Supplier_model->get_all_aktif();
         $data['produk']   = $this->Produk_model->get_all_aktif();
+        $data['content']  = 'admin/pembelian_supplier/create';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/pembelian_supplier/create', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 
-    // ===============================
-    // STORE (TRANSAKSI)
-    // ===============================
+    // ==================================================
+    // SIMPAN TRANSAKSI PEMBELIAN SUPPLIER
+    // ==================================================
     public function store()
     {
         $this->db->trans_begin();
@@ -67,11 +61,17 @@ class Pembelian_supplier_admin extends MY_Controller
             $harga_modal = (int) $this->input->post('harga_modal_satuan');
             $subtotal    = $qty * $harga_modal;
 
+            // ==================================================
+            // INSERT PEMBELIAN
+            // ==================================================
             $id_pembelian = $this->Pembelian_supplier_model->insert([
                 'id_supplier' => $id_supplier,
                 'total_harga' => $subtotal
             ]);
 
+            // ==================================================
+            // INSERT DETAIL PEMBELIAN
+            // ==================================================
             $this->Detail_pembelian_supplier_model->insert([
                 'id_pembelian'       => $id_pembelian,
                 'id_produk'          => $id_produk,
@@ -80,6 +80,9 @@ class Pembelian_supplier_admin extends MY_Controller
                 'subtotal'           => $subtotal
             ]);
 
+            // ==================================================
+            // UPDATE STOK & HARGA MODAL PRODUK
+            // ==================================================
             $this->Produk_model->update_stok_dan_modal(
                 $id_produk,
                 $qty,
@@ -99,24 +102,21 @@ class Pembelian_supplier_admin extends MY_Controller
         }
     }
 
-    // ===============================
-    // DETAIL
-    // ===============================
+    // ==================================================
+    // DETAIL PEMBELIAN SUPPLIER
+    // ==================================================
     public function detail($id)
     {
         $data = $this->data;
 
-        $data['pembelian'] = $this->Pembelian_supplier_model->get_by_id($id);
+        $pembelian = $this->Pembelian_supplier_model->get_by_id($id);
+        if (!$pembelian) show_404();
+
+        $data['title']     = 'Detail Pembelian Supplier';
+        $data['pembelian'] = $pembelian;
         $data['detail']    = $this->Detail_pembelian_supplier_model->get_by_pembelian($id);
+        $data['content']   = 'admin/pembelian_supplier/detail';
 
-        if (!$data['pembelian']) show_404();
-
-        $data['title'] = 'Detail Pembelian Supplier';
-
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/pembelian_supplier/detail', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 }

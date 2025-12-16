@@ -1,138 +1,166 @@
-<div class="content-wrapper">
-
-  <!-- Content Header -->
-  <section class="content-header">
-    <div class="container-fluid">
-      <div class="row mb-2">
-        <div class="col-sm-6">
-          <h1>Produk</h1>
-        </div>
-        <div class="col-sm-6">
-          <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="<?= base_url('admin/dashboard'); ?>">Dashboard</a></li>
-            <li class="breadcrumb-item active">Produk</li>
-          </ol>
-        </div>
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>Produk</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item">
+            <a href="<?= base_url('admin/dashboard'); ?>">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active">Produk</li>
+        </ol>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Main content -->
-  <section class="content">
-    <div class="container-fluid">
+<section class="content">
+  <div class="container-fluid">
 
-      <!-- ACTION BAR -->
-      <div class="mb-3 d-flex justify-content-between">
-        <a href="<?= base_url('admin/produk/create'); ?>" class="btn btn-primary btn-sm">
-          <i class="fas fa-plus"></i> Tambah Produk
-        </a>
+    <!-- ACTION BAR -->
+    <div class="mb-3 d-flex justify-content-between">
+      <a href="<?= base_url('admin/produk/create'); ?>" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus"></i> Tambah Produk
+      </a>
 
-        <form method="get" action="<?= base_url('admin/produk'); ?>">
-          <div class="input-group input-group-sm" style="width:260px;">
-            <input type="text"
-                   name="q"
-                   class="form-control"
-                   placeholder="Cari produk..."
-                   value="<?= htmlspecialchars($keyword ?? '', ENT_QUOTES); ?>">
-            <div class="input-group-append">
-              <button type="submit" class="btn btn-default">
-                <i class="fas fa-search"></i>
-              </button>
-            </div>
+      <form method="get" action="<?= base_url('admin/produk'); ?>">
+        <div class="input-group input-group-sm" style="width:260px;">
+          <input type="text"
+                 name="q"
+                 class="form-control"
+                 placeholder="Cari produk..."
+                 value="<?= htmlspecialchars($keyword ?? '', ENT_QUOTES); ?>">
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-default">
+              <i class="fas fa-search"></i>
+            </button>
           </div>
-        </form>
+        </div>
+      </form>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Daftar Produk</h3>
       </div>
 
-      <!-- TABLE -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Daftar Produk</h3>
-        </div>
+      <div class="card-body py-1">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th class="text-center" width="50">No</th>
+              <th width="150">Nama Produk</th>
+              <th width="50">Kategori</th>
+              <th width="50">Brand</th>
+              <th width="100">Supplier</th>
+              <th width="50" class="text-center">Gambar</th>
+              <th width="100">Harga</th>
+              <th width="60" class="text-center">Stok</th>
+              <th width="75" class="text-center">Status</th>
+              <th width="75" class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
 
-        <div class="card-body py-1">
-          <table class="table table-bordered table-hover">
-            <thead>
+          <?php if (!empty($produk)) : ?>
+            <?php $no = 1 + ($offset ?? 0); ?>
+            <?php foreach ($produk as $p) : ?>
+
+            <?php
+              // ==================================================
+              // GAMBAR + FALLBACK
+              // ==================================================
+              $imgPath = FCPATH.'assets/uploads/produk/'.$p->gambar_produk;
+              $imgUrl  = base_url('assets/uploads/produk/'.$p->gambar_produk);
+
+              if (empty($p->gambar_produk) || !file_exists($imgPath)) {
+                  $imgUrl = base_url('assets/uploads/brand/default.png');
+              }
+            ?>
+
               <tr>
-                <th style="width:50px">No</th>
-                <th>Nama Produk</th>
-                <th style="width:140px">Kategori</th>
-                <th style="width:140px">Brand</th>
-                <th style="width:160px">Supplier</th>
-                <th style="width:90px" class="text-center">Gambar</th>
-                <th style="width:130px">Harga</th>
-                <th style="width:90px" class="text-center">Status</th>
-                <th style="width:150px" class="text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
+                <td class="text-center align-middle"><?= $no++; ?></td>
 
-            <?php if (!empty($produk)) : ?>
-              <?php $no = 1 + ($offset ?? 0); ?>
-              <?php foreach ($produk as $p) : ?>
-                <tr>
-                  <td><?= $no++; ?></td>
+                <td class="align-middle">
+                  <strong><?= htmlspecialchars($p->nama_produk); ?></strong>
+                </td>
 
-                  <td><strong><?= htmlspecialchars($p->nama_produk); ?></strong></td>
-                  <td><?= htmlspecialchars($p->nama_kategori); ?></td>
-                  <td><?= htmlspecialchars($p->nama_brand); ?></td>
-                  <td><?= htmlspecialchars($p->nama_supplier ?? '-'); ?></td>
+                <td class="align-middle">
+                  <?= htmlspecialchars($p->nama_kategori); ?>
+                </td>
 
-                  <td class="text-center">
-                    <?php if (!empty($p->gambar_produk)): ?>
-                      <img src="<?= base_url('uploads/produk/'.$p->gambar_produk); ?>"
-                           style="height:40px">
-                    <?php else: ?>
-                      <span class="text-muted">-</span>
-                    <?php endif; ?>
-                  </td>
+                <td class="align-middle">
+                  <?= htmlspecialchars($p->nama_brand); ?>
+                </td>
 
-                  <td>Rp <?= number_format($p->harga_jual, 0, ',', '.'); ?></td>
+                <td class="align-middle">
+                  <?= $p->nama_supplier ?: '-'; ?>
+                </td>
 
-                  <td class="text-center">
-                    <?= $p->status_aktif
-                      ? '<span class="badge bg-success">Aktif</span>'
-                      : '<span class="badge bg-secondary">Nonaktif</span>'; ?>
-                  </td>
+                <td class="text-center align-middle">
+                  <img src="<?= $imgUrl; ?>"
+                       class="img-thumbnail"
+                       style="max-height:75px; max-width:100px; object-fit:contain;">
+                </td>
 
-                  <td class="text-center">
-                    <a href="<?= base_url('admin/produk/edit/'.$p->id_produk); ?>"
-                       class="btn btn-warning btn-sm">
-                      <i class="fas fa-edit"></i>
+                <td class="align-middle">
+                  Rp <?= number_format($p->harga_jual, 0, ',', '.'); ?>
+                </td>
+
+                <!-- ===============================
+                     STOK PRODUK
+                     =============================== -->
+                <td class="text-center align-middle">
+                  <?= (int) $p->stok; ?>
+                </td>
+
+                <td class="text-center align-middle">
+                  <?= $p->status_aktif
+                    ? '<span class="badge bg-success">Aktif</span>'
+                    : '<span class="badge bg-secondary">Nonaktif</span>'; ?>
+                </td>
+
+                <td class="text-center align-middle">
+                  <a href="<?= base_url('admin/produk/edit/'.$p->id_produk); ?>"
+                     class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit"></i>
+                  </a>
+
+                  <?php if ($p->status_aktif): ?>
+                    <a href="<?= base_url('admin/produk/nonaktif/'.$p->id_produk); ?>"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Nonaktifkan produk ini?')">
+                      <i class="fas fa-times"></i>
                     </a>
-
-                    <?php if ($p->status_aktif): ?>
-                      <a href="<?= base_url('admin/produk/nonaktif/'.$p->id_produk); ?>"
-                         class="btn btn-danger btn-sm"
-                         onclick="return confirm('Nonaktifkan produk ini?')">
-                        <i class="fas fa-times"></i>
-                      </a>
-                    <?php else: ?>
-                      <a href="<?= base_url('admin/produk/aktif/'.$p->id_produk); ?>"
-                         class="btn btn-success btn-sm"
-                         onclick="return confirm('Aktifkan produk ini?')">
-                        <i class="fas fa-check"></i>
-                      </a>
-                    <?php endif; ?>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            <?php else : ?>
-              <tr>
-                <td colspan="9" class="text-center text-muted">
-                  Data tidak ditemukan
+                  <?php else: ?>
+                    <a href="<?= base_url('admin/produk/aktif/'.$p->id_produk); ?>"
+                       class="btn btn-success btn-sm">
+                      <i class="fas fa-check"></i>
+                    </a>
+                  <?php endif; ?>
                 </td>
               </tr>
-            <?php endif; ?>
 
-            </tbody>
-          </table>
-        </div>
+            <?php endforeach; ?>
+          <?php else : ?>
+            <tr>
+              <td colspan="10" class="text-center text-muted">
+                Data tidak ditemukan
+              </td>
+            </tr>
+          <?php endif; ?>
 
-        <div class="card-footer clearfix">
-          <?= $pagination; ?>
-        </div>
+          </tbody>
+        </table>
       </div>
 
+      <div class="card-footer clearfix">
+        <?= $pagination; ?>
+      </div>
     </div>
-  </section>
-</div>
+
+  </div>
+</section>

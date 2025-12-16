@@ -11,45 +11,40 @@ class Pembayaran_admin extends MY_Controller
         $this->load->model('Pembayaran_model', 'pembayaran_model');
     }
 
-    /**
-     * LIST PEMBAYARAN TRANSFER
-     */
+    // ==================================================
+    // LIST PEMBAYARAN TRANSFER
+    // ==================================================
     public function index()
     {
+        $data = $this->data;
+
         $data['title']      = 'Pembayaran Transfer';
         $data['pembayaran'] = $this->pembayaran_model->get_all();
+        $data['content']    = 'admin/pembayaran/index';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar');
-        $this->load->view('admin/layout/sidebar');
-        $this->load->view('admin/pembayaran/index', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 
-    /**
-     * DETAIL PEMBAYARAN
-     */
+    // ==================================================
+    // DETAIL PEMBAYARAN TRANSFER
+    // ==================================================
     public function detail($id)
     {
-        $pembayaran = $this->pembayaran_model->get_by_id($id);
+        $data = $this->data;
 
-        if (!$pembayaran) {
-            show_404();
-        }
+        $pembayaran = $this->pembayaran_model->get_by_id($id);
+        if (!$pembayaran) show_404();
 
         $data['title']      = 'Detail Pembayaran Transfer';
         $data['pembayaran'] = $pembayaran;
+        $data['content']    = 'admin/pembayaran/detail';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar');
-        $this->load->view('admin/layout/sidebar');
-        $this->load->view('admin/pembayaran/detail', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 
-    /**
-     * VERIFIKASI PEMBAYARAN
-     */
+    // ==================================================
+    // VERIFIKASI PEMBAYARAN
+    // ==================================================
     public function verifikasi($id, $status)
     {
         if (!in_array($status, ['diterima', 'ditolak'])) {

@@ -3,9 +3,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Auth_admin extends MY_Controller
 {
-    // Auth tidak butuh proteksi login
+    // ==================================================
+    // AUTH TIDAK BUTUH LOGIN CHECK
+    // ==================================================
     protected $is_admin = false;
 
+    // ==================================================
+    // FORM LOGIN ADMIN
+    // ==================================================
     public function login()
     {
         if ($this->session->userdata('admin_logged_in')) {
@@ -16,6 +21,9 @@ class Auth_admin extends MY_Controller
         $this->load->view('admin/auth/login');
     }
 
+    // ==================================================
+    // PROSES LOGIN ADMIN
+    // ==================================================
     public function process()
     {
         $username = $this->input->post('username', true);
@@ -27,7 +35,9 @@ class Auth_admin extends MY_Controller
             exit;
         }
 
-        // Ambil admin aktif
+        // ==================================================
+        // AMBIL ADMIN AKTIF
+        // ==================================================
         $admin = $this->db
             ->where('username', $username)
             ->where('status_aktif', 1)
@@ -36,7 +46,9 @@ class Auth_admin extends MY_Controller
 
         if ($admin && password_verify($password, $admin->password_hash)) {
 
-            // Set session admin
+            // ==================================================
+            // SET SESSION ADMIN
+            // ==================================================
             $this->session->set_userdata([
                 'admin_logged_in' => true,
                 'admin_id'        => $admin->id_admin,
@@ -45,7 +57,9 @@ class Auth_admin extends MY_Controller
                 'admin_email'     => $admin->email
             ]);
 
-            // Update last login
+            // ==================================================
+            // UPDATE LAST LOGIN
+            // ==================================================
             $this->db
                 ->where('id_admin', $admin->id_admin)
                 ->update('admin', [
@@ -60,7 +74,10 @@ class Auth_admin extends MY_Controller
         redirect('admin/auth/login');
         exit;
     }
-    // fungsi logout
+
+    // ==================================================
+    // LOGOUT ADMIN
+    // ==================================================
     public function logout()
     {
         $this->session->sess_destroy();

@@ -12,17 +12,25 @@ class Kategori_admin extends MY_Controller
         $this->load->library(['pagination', 'user_agent']);
     }
 
+    // ==================================================
+    // LIST KATEGORI + SEARCH + PAGINATION
+    // ==================================================
     public function index()
     {
-        $data = $this->data; // 🔑 AMBIL DATA GLOBAL
+        $data = $this->data;
 
         $keyword = $this->input->get('q', true);
-        $offset  = (int) $this->input->get('page');
-        $offset  = $offset < 0 ? 0 : $offset;
+        $offset  = max((int) $this->input->get('page'), 0);
         $limit   = 10;
 
+        // ==================================================
+        // HITUNG TOTAL KATEGORI
+        // ==================================================
         $total_rows = $this->Kategori_model->count_all($keyword);
 
+        // ==================================================
+        // KONFIGURASI PAGINATION (ADMINLTE STYLE)
+        // ==================================================
         $config['base_url']             = base_url('admin/kategori');
         $config['total_rows']           = $total_rows;
         $config['per_page']             = $limit;
@@ -40,19 +48,53 @@ class Kategori_admin extends MY_Controller
 
         $this->pagination->initialize($config);
 
+        // ==================================================
+        // DATA KE VIEW
+        // ==================================================
         $data['title']      = 'Kategori Produk';
         $data['kategori']   = $this->Kategori_model->get_paginated($limit, $offset, $keyword);
         $data['pagination'] = $this->pagination->create_links();
         $data['keyword']    = $keyword;
         $data['offset']     = $offset;
+        $data['content']    = 'admin/kategori/index';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/kategori/index', $data);
-        $this->load->view('admin/layout/footer');
+        // ==================================================
+        // RENDER VIA TEMPLATE
+        // ==================================================
+        $this->load->view('admin/layout/template', $data);
     }
 
+    // ==================================================
+    // FORM TAMBAH KATEGORI
+    // ==================================================
+    public function create()
+    {
+        $data = $this->data;
+
+        $data['title']   = 'Tambah Kategori';
+        $data['content'] = 'admin/kategori/create';
+
+        $this->load->view('admin/layout/template', $data);
+    }
+
+    // ==================================================
+    // SIMPAN KATEGORI BARU
+    // ==================================================
+    public function store()
+    {
+        $data = [
+            'nama_kategori' => $this->input->post('nama_kategori', true),
+            'deskripsi'     => $this->input->post('deskripsi', true),
+            'status_aktif'  => 1
+        ];
+
+        $this->Kategori_model->insert($data);
+        redirect('admin/kategori');
+    }
+
+    // ==================================================
+    // FORM EDIT KATEGORI
+    // ==================================================
     public function edit($id)
     {
         $data = $this->data;
@@ -62,14 +104,14 @@ class Kategori_admin extends MY_Controller
 
         $data['title']    = 'Edit Kategori';
         $data['kategori'] = $kategori;
+        $data['content']  = 'admin/kategori/edit';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/kategori/edit', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 
+    // ==================================================
+    // UPDATE KATEGORI
+    // ==================================================
     public function update($id)
     {
         $data = [
@@ -78,17 +120,21 @@ class Kategori_admin extends MY_Controller
         ];
 
         $this->Kategori_model->update($id, $data);
-
-        $redirect = $this->input->post('redirect');
-        redirect($redirect ?: 'admin/kategori');
+        redirect('admin/kategori');
     }
 
+    // ==================================================
+    // NONAKTIFKAN KATEGORI
+    // ==================================================
     public function nonaktif($id)
     {
         $this->Kategori_model->update($id, ['status_aktif' => 0]);
         redirect($this->agent->referrer() ?: 'admin/kategori');
     }
 
+    // ==================================================
+    // AKTIFKAN KATEGORI
+    // ==================================================
     public function aktif($id)
     {
         $this->Kategori_model->update($id, ['status_aktif' => 1]);

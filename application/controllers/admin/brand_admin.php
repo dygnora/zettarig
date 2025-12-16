@@ -13,17 +13,26 @@ class Brand_admin extends MY_Controller
         $this->load->helper(['url', 'text']);
     }
 
+    // ==================================================
+    // LIST BRAND + SEARCH + PAGINATION
+    // ==================================================
     public function index()
     {
         $data = $this->data;
 
-        $keyword = $this->input->get('q');
+        $keyword = $this->input->get('q', true);
         $page    = (int) $this->input->get('page');
         $limit   = 10;
         $offset  = ($page > 0 ? ($page - 1) * $limit : 0);
 
+        // ==================================================
+        // HITUNG TOTAL BRAND (UNTUK PAGINATION)
+        // ==================================================
         $total = $this->Brand_model->count_all($keyword);
 
+        // ==================================================
+        // KONFIGURASI PAGINATION
+        // ==================================================
         $config['base_url']             = base_url('admin/brand');
         $config['total_rows']           = $total;
         $config['per_page']             = $limit;
@@ -32,47 +41,55 @@ class Brand_admin extends MY_Controller
 
         $this->pagination->initialize($config);
 
+        // ==================================================
+        // DATA KE VIEW
+        // ==================================================
         $data['title']      = 'Brand Produk';
         $data['brand']      = $this->Brand_model->get_paginated($limit, $offset, $keyword);
         $data['pagination'] = $this->pagination->create_links();
         $data['keyword']    = $keyword;
         $data['offset']     = $offset;
+        $data['content']    = 'admin/brand/index';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/brand/index', $data);
-        $this->load->view('admin/layout/footer');
+        // ==================================================
+        // RENDER VIA TEMPLATE
+        // ==================================================
+        $this->load->view('admin/layout/template', $data);
     }
 
+    // ==================================================
+    // FORM TAMBAH BRAND
+    // ==================================================
     public function create()
     {
         $data = $this->data;
-        $data['title'] = 'Tambah Brand';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/brand/create', $data);
-        $this->load->view('admin/layout/footer');
+        $data['title']   = 'Tambah Brand';
+        $data['content'] = 'admin/brand/create';
+
+        $this->load->view('admin/layout/template', $data);
     }
 
+    // ==================================================
+    // FORM EDIT BRAND
+    // ==================================================
     public function edit($id)
     {
         $data = $this->data;
 
-        $data['brand'] = $this->Brand_model->get_by_id($id);
-        if (!$data['brand']) show_404();
+        $brand = $this->Brand_model->get_by_id($id);
+        if (!$brand) show_404();
 
-        $data['title'] = 'Edit Brand';
+        $data['title']   = 'Edit Brand';
+        $data['brand']   = $brand;
+        $data['content'] = 'admin/brand/edit';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/brand/edit', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 
+    // ==================================================
+    // SIMPAN BRAND BARU
+    // ==================================================
     public function store()
     {
         $logo = !empty($_FILES['logo']['name']) ? $this->_upload_logo() : null;
@@ -88,6 +105,9 @@ class Brand_admin extends MY_Controller
         redirect('admin/brand');
     }
 
+    // ==================================================
+    // UPDATE BRAND
+    // ==================================================
     public function update($id)
     {
         $brand = $this->Brand_model->get_by_id($id);
@@ -112,18 +132,27 @@ class Brand_admin extends MY_Controller
         redirect('admin/brand');
     }
 
+    // ==================================================
+    // AKTIFKAN BRAND
+    // ==================================================
     public function aktif($id)
     {
         $this->Brand_model->set_status($id, 1);
         redirect($this->agent->referrer());
     }
 
+    // ==================================================
+    // NONAKTIFKAN BRAND
+    // ==================================================
     public function nonaktif($id)
     {
         $this->Brand_model->set_status($id, 0);
         redirect($this->agent->referrer());
     }
 
+    // ==================================================
+    // UPLOAD LOGO BRAND (PRIVATE)
+    // ==================================================
     private function _upload_logo()
     {
         $path = FCPATH.'assets/uploads/brand/';

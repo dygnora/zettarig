@@ -6,7 +6,7 @@ class Produk_model extends CI_Model
     protected $table = 'produk';
 
     // ==================================================
-    // HITUNG TOTAL PRODUK (UNTUK PAGINATION)
+    // HITUNG TOTAL PRODUK (UNTUK PAGINATION + SEARCH)
     // ==================================================
     public function count_all($keyword = null)
     {
@@ -36,6 +36,7 @@ class Produk_model extends CI_Model
             p.id_produk,
             p.nama_produk,
             p.harga_jual,
+            p.stok,
             p.gambar_produk,
             p.status_aktif,
 
@@ -66,7 +67,7 @@ class Produk_model extends CI_Model
     }
 
     // ==================================================
-    // AMBIL PRODUK BERDASARKAN ID
+    // AMBIL 1 PRODUK BERDASARKAN ID
     // ==================================================
     public function get_by_id($id)
     {
@@ -85,7 +86,7 @@ class Produk_model extends CI_Model
     }
 
     // ==================================================
-    // UPDATE DATA PRODUK
+    // UPDATE PRODUK
     // ==================================================
     public function update($id, $data)
     {
@@ -103,24 +104,48 @@ class Produk_model extends CI_Model
     }
 
     // ==================================================
-    // UPDATE STOK + HARGA MODAL (DARI PEMBELIAN SUPPLIER)
+    // UPDATE STOK + HARGA MODAL
+    // (DIGUNAKAN SAAT PEMBELIAN SUPPLIER)
     // ==================================================
     public function update_stok_dan_modal($id_produk, $qty, $harga_modal)
     {
         $this->db->set('stok', 'stok + '.$qty, false);
         $this->db->set('harga_modal', $harga_modal);
         $this->db->where('id_produk', $id_produk);
-        return $this->db->update('produk');
+        return $this->db->update($this->table);
     }
 
     // ==================================================
-    // AMBIL PRODUK AKTIF (UNTUK TRANSAKSI)
+    // KURANGI STOK (SAAT PENJUALAN)
+    // ==================================================
+    public function kurangi_stok($id_produk, $qty)
+    {
+        $this->db->set('stok', 'stok - '.$qty, false);
+        $this->db->where('id_produk', $id_produk);
+        return $this->db->update($this->table);
+    }
+
+    // ==================================================
+    // AMBIL SEMUA PRODUK AKTIF
+    // (UNTUK TRANSAKSI PENJUALAN)
     // ==================================================
     public function get_all_aktif()
     {
         return $this->db
             ->where('status_aktif', 1)
-            ->get('produk')
+            ->order_by('nama_produk', 'ASC')
+            ->get($this->table)
             ->result();
+    }
+
+    // ==================================================
+    // CEK STOK CUKUP (VALIDASI SEBELUM TRANSAKSI)
+    // ==================================================
+    public function cek_stok($id_produk, $qty)
+    {
+        $produk = $this->get_by_id($id_produk);
+        if (!$produk) return false;
+
+        return ($produk->stok >= $qty);
     }
 }

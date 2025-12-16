@@ -13,17 +13,26 @@ class Customer_admin extends MY_Controller
         $this->load->helper(['url', 'text']);
     }
 
+    // ==================================================
+    // LIST CUSTOMER + SEARCH + PAGINATION
+    // ==================================================
     public function index()
     {
         $data = $this->data;
 
-        $keyword = $this->input->get('q');
+        $keyword = $this->input->get('q', true);
         $page    = (int) $this->input->get('page');
         $limit   = 10;
         $offset  = ($page > 0 ? ($page - 1) * $limit : 0);
 
+        // ==================================================
+        // HITUNG TOTAL CUSTOMER
+        // ==================================================
         $total = $this->Customer_model->count_all($keyword);
 
+        // ==================================================
+        // KONFIGURASI PAGINATION
+        // ==================================================
         $config['base_url']             = base_url('admin/customer');
         $config['total_rows']           = $total;
         $config['per_page']             = $limit;
@@ -32,47 +41,55 @@ class Customer_admin extends MY_Controller
 
         $this->pagination->initialize($config);
 
+        // ==================================================
+        // DATA KE VIEW
+        // ==================================================
         $data['title']      = 'Customer';
         $data['customer']   = $this->Customer_model->get_paginated($limit, $offset, $keyword);
         $data['pagination'] = $this->pagination->create_links();
         $data['keyword']    = $keyword;
         $data['offset']     = $offset;
+        $data['content']    = 'admin/customer/index';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/customer/index', $data);
-        $this->load->view('admin/layout/footer');
+        // ==================================================
+        // RENDER VIA TEMPLATE
+        // ==================================================
+        $this->load->view('admin/layout/template', $data);
     }
 
+    // ==================================================
+    // FORM TAMBAH CUSTOMER
+    // ==================================================
     public function create()
     {
         $data = $this->data;
-        $data['title'] = 'Tambah Customer';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/customer/create', $data);
-        $this->load->view('admin/layout/footer');
+        $data['title']   = 'Tambah Customer';
+        $data['content'] = 'admin/customer/create';
+
+        $this->load->view('admin/layout/template', $data);
     }
 
+    // ==================================================
+    // FORM EDIT CUSTOMER
+    // ==================================================
     public function edit($id)
     {
         $data = $this->data;
 
-        $data['customer'] = $this->Customer_model->get_by_id($id);
-        if (!$data['customer']) show_404();
+        $customer = $this->Customer_model->get_by_id($id);
+        if (!$customer) show_404();
 
-        $data['title'] = 'Edit Customer';
+        $data['title']    = 'Edit Customer';
+        $data['customer'] = $customer;
+        $data['content']  = 'admin/customer/edit';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/customer/edit', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 
+    // ==================================================
+    // SIMPAN CUSTOMER BARU
+    // ==================================================
     public function store()
     {
         $data = [
@@ -89,6 +106,9 @@ class Customer_admin extends MY_Controller
         redirect('admin/customer');
     }
 
+    // ==================================================
+    // UPDATE CUSTOMER
+    // ==================================================
     public function update($id)
     {
         $data = [
@@ -109,12 +129,18 @@ class Customer_admin extends MY_Controller
         redirect('admin/customer');
     }
 
+    // ==================================================
+    // AKTIFKAN CUSTOMER
+    // ==================================================
     public function aktif($id)
     {
         $this->Customer_model->set_status($id, 1);
         redirect($this->agent->referrer());
     }
 
+    // ==================================================
+    // NONAKTIFKAN CUSTOMER
+    // ==================================================
     public function nonaktif($id)
     {
         $this->Customer_model->set_status($id, 0);

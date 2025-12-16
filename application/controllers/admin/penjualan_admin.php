@@ -11,20 +11,23 @@ class Penjualan_admin extends MY_Controller
         $this->load->model('Penjualan_model');
     }
 
+    // ==================================================
+    // LIST DATA PENJUALAN
+    // ==================================================
     public function index()
     {
         $data = $this->data;
 
         $data['title']     = 'Data Penjualan';
         $data['penjualan'] = $this->Penjualan_model->get_all();
+        $data['content']   = 'admin/penjualan/index';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/penjualan/index', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 
+    // ==================================================
+    // DETAIL DATA PENJUALAN
+    // ==================================================
     public function detail($id)
     {
         $data = $this->data;
@@ -36,11 +39,8 @@ class Penjualan_admin extends MY_Controller
         $data['penjualan'] = $penjualan;
         $data['detail']    = $this->Penjualan_model->get_detail($id);
         $data['timeline']  = $this->Penjualan_model->get_timeline($id);
+        $data['content']   = 'admin/penjualan/detail';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/penjualan/detail', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 }

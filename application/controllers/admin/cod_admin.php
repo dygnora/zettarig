@@ -11,26 +11,23 @@ class Cod_admin extends MY_Controller
         $this->load->model('Cod_model');
     }
 
-    // ===============================
+    // ==================================================
     // LIST COD & DP
-    // ===============================
+    // ==================================================
     public function index()
     {
         $data = $this->data;
 
-        $data['title'] = 'COD & DP';
-        $data['cod']   = $this->Cod_model->get_all();
+        $data['title']   = 'COD & DP';
+        $data['cod']     = $this->Cod_model->get_all();
+        $data['content'] = 'admin/cod/index';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/cod/index', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 
-    // ===============================
+    // ==================================================
     // DETAIL COD
-    // ===============================
+    // ==================================================
     public function detail($id)
     {
         $data = $this->data;
@@ -38,19 +35,16 @@ class Cod_admin extends MY_Controller
         $cod = $this->Cod_model->get_by_id($id);
         if (!$cod) show_404();
 
-        $data['title'] = 'Detail COD';
-        $data['cod']   = $cod;
+        $data['title']   = 'Detail COD';
+        $data['cod']     = $cod;
+        $data['content'] = 'admin/cod/detail';
 
-        $this->load->view('admin/layout/header', $data);
-        $this->load->view('admin/layout/navbar', $data);
-        $this->load->view('admin/layout/sidebar', $data);
-        $this->load->view('admin/cod/detail', $data);
-        $this->load->view('admin/layout/footer');
+        $this->load->view('admin/layout/template', $data);
     }
 
-    // ===============================
+    // ==================================================
     // VERIFIKASI DP
-    // ===============================
+    // ==================================================
     public function verifikasi_dp($id, $status)
     {
         if (!in_array($status, ['diterima', 'ditolak'])) {
@@ -61,9 +55,9 @@ class Cod_admin extends MY_Controller
         redirect('admin/cod');
     }
 
-    // ===============================
-    // PELUNASAN
-    // ===============================
+    // ==================================================
+    // PELUNASAN COD
+    // ==================================================
     public function lunasi($id)
     {
         $this->Cod_model->pelunasan($id);

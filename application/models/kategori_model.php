@@ -10,7 +10,6 @@ class Kategori_model extends CI_Model
         if ($keyword) {
             $this->db->like('nama_kategori', $keyword);
         }
-
         return $this->db->count_all_results($this->table);
     }
 
@@ -35,6 +34,11 @@ class Kategori_model extends CI_Model
             ->row();
     }
 
+    public function insert($data)
+    {
+        return $this->db->insert($this->table, $data);
+    }
+
     public function update($id, $data)
     {
         return $this->db
@@ -42,13 +46,13 @@ class Kategori_model extends CI_Model
             ->update($this->table, $data);
     }
 
+    // ✅ INI YANG BARU
     public function get_all_active()
     {
         return $this->db
             ->where('status_aktif', 1)
             ->order_by('nama_kategori', 'ASC')
-            ->get('kategori_produk')
+            ->get($this->table)
             ->result();
     }
-
 }
