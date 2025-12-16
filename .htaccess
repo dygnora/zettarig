@@ -1,10 +1,10 @@
 RewriteEngine On
 
-# Redirect HTTP → HTTPS
-RewriteCond %{HTTPS} off
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# Paksa HTTPS (works di Laragon)
+RewriteCond %{SERVER_PORT} !^443$
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Rewrite utama CodeIgniter 3
+# CI3 rewrite
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php/$1 [L]
+RewriteRule ^ index.php [L]
