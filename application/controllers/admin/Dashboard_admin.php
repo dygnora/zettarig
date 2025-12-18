@@ -32,26 +32,30 @@ class Dashboard_admin extends MY_Controller
         $data['produk_stok_menipis'] = $this->Dashboard_model->get_produk_stok_menipis();
 
         // ==================================================
-        // GRAFIK PENDAPATAN BULANAN
+        // GRAFIK BULANAN (PENDAPATAN vs PEMBELIAN)
         // ==================================================
-        $grafik = $this->Dashboard_model->get_pendapatan_bulanan();
+        $grafik = $this->Dashboard_model->get_pendapatan_vs_pembelian_bulanan();
 
         $bulan_label      = [];
         $bulan_pendapatan = [];
+        $bulan_pembelian  = [];
 
         foreach ($grafik as $g) {
             $bulan_label[] = date(
                 'M Y',
                 mktime(0, 0, 0, $g->bulan_angka, 1, $g->tahun)
             );
-            $bulan_pendapatan[] = (int) $g->total;
+
+            $bulan_pendapatan[] = (int) $g->total_pendapatan;
+            $bulan_pembelian[]  = (int) $g->total_pembelian;
         }
 
         $data['bulan_label']      = $bulan_label;
         $data['bulan_pendapatan'] = $bulan_pendapatan;
+        $data['bulan_pembelian']  = $bulan_pembelian;
 
         // ==================================================
-        // TOTAL UANG
+        // TOTAL UANG (SUMMARY)
         // ==================================================
         $data['total_revenue'] = $this->Dashboard_model->get_total_revenue();
         $data['total_cost']    = $this->Dashboard_model->get_total_cost();

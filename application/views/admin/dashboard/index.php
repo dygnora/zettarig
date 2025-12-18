@@ -1,5 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 
+
 <!-- Content Header -->
 <section class="content-header">
   <div class="container-fluid">
@@ -74,7 +75,7 @@
           </div>
 
           <div class="card-body">
-            <canvas id="chartPendapatan" height="120"></canvas>
+            <canvas id="chartPendapatan" height="150"></canvas>
           </div>
 
           <div class="card-footer">

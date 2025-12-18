@@ -3,7 +3,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Dashboard_model extends CI_Model
 {
-    // ================= COUNT =================
+    // ==================================================
+    // COUNT DATA (INFO BOX)
+    // ==================================================
     public function count_produk()
     {
         return $this->db->count_all('produk');
@@ -26,7 +28,9 @@ class Dashboard_model extends CI_Model
             ->count_all_results('produk');
     }
 
-    // ================= STOK MENIPIS =================
+    // ==================================================
+    // PRODUK STOK MENIPIS
+    // ==================================================
     public function get_produk_stok_menipis($batas = 5)
     {
         return $this->db
@@ -39,29 +43,56 @@ class Dashboard_model extends CI_Model
             ->result();
     }
 
-    // ================= GRAFIK PENDAPATAN =================
-    public function get_pendapatan_bulanan()
+    // ==================================================
+    // GRAFIK BULANAN
+    // PENDAPATAN vs PEMBELIAN (DATA REAL)
+    // ==================================================
+    public function get_pendapatan_vs_pembelian_bulanan()
     {
-        return $this->db
-            ->select("
-                YEAR(tanggal_pesanan) AS tahun,
-                MONTH(tanggal_pesanan) AS bulan_angka,
-                SUM(total_harga) AS total
-            ")
-            ->from('penjualan')
-            ->where('status_pesanan', 'selesai')
-            ->where('tanggal_pesanan >=', date('Y-m-01', strtotime('-11 months')))
-            ->group_by([
-                'YEAR(tanggal_pesanan)',
-                'MONTH(tanggal_pesanan)'
-            ])
-            ->order_by('YEAR(tanggal_pesanan)', 'ASC')
-            ->order_by('MONTH(tanggal_pesanan)', 'ASC')
-            ->get()
-            ->result();
+        $sql = "
+            SELECT
+                tahun,
+                bulan_angka,
+                SUM(total_pendapatan) AS total_pendapatan,
+                SUM(total_pembelian)  AS total_pembelian
+            FROM (
+                -- =========================================
+                -- PENDAPATAN (PENJUALAN SELESAI)
+                -- =========================================
+                SELECT
+                    YEAR(p.tanggal_pesanan)  AS tahun,
+                    MONTH(p.tanggal_pesanan) AS bulan_angka,
+                    SUM(p.total_harga)       AS total_pendapatan,
+                    0                        AS total_pembelian
+                FROM penjualan p
+                WHERE p.status_pesanan = 'selesai'
+                GROUP BY YEAR(p.tanggal_pesanan), MONTH(p.tanggal_pesanan)
+
+                UNION ALL
+
+                -- =========================================
+                -- PEMBELIAN (DETAIL PEMBELIAN SUPPLIER)
+                -- =========================================
+                SELECT
+                    YEAR(ps.tanggal_pembelian)  AS tahun,
+                    MONTH(ps.tanggal_pembelian) AS bulan_angka,
+                    0                           AS total_pendapatan,
+                    SUM(dps.subtotal)           AS total_pembelian
+                FROM detail_pembelian_supplier dps
+                JOIN pembelian_supplier ps
+                  ON ps.id_pembelian = dps.id_pembelian
+                GROUP BY YEAR(ps.tanggal_pembelian), MONTH(ps.tanggal_pembelian)
+            ) data
+            GROUP BY tahun, bulan_angka
+            ORDER BY tahun ASC, bulan_angka ASC
+        ";
+
+        return $this->db->query($sql)->result();
     }
 
-    // ================= TOTAL UANG =================
+    // ==================================================
+    // TOTAL UANG (SUMMARY)
+    // ==================================================
     public function get_total_revenue()
     {
         $row = $this->db
@@ -71,7 +102,7 @@ class Dashboard_model extends CI_Model
             ->get()
             ->row();
 
-        return $row->total ?? 0;
+        return (int) ($row->total ?? 0);
     }
 
     public function get_total_cost()
@@ -82,10 +113,12 @@ class Dashboard_model extends CI_Model
             ->get()
             ->row();
 
-        return $row->total ?? 0;
+        return (int) ($row->total ?? 0);
     }
 
-    // ================= LATEST ORDER =================
+    // ==================================================
+    // PESANAN TERBARU (DASHBOARD)
+    // ==================================================
     public function get_latest_orders($limit = 5)
     {
         return $this->db
@@ -104,35 +137,34 @@ class Dashboard_model extends CI_Model
             ->result();
     }
 
-    // ================= NOTIFIKASI PESANAN BARU =================
-public function count_pesanan_baru()
+    // ==================================================
+    // NOTIFIKASI PESANAN BARU
+    // ==================================================
+    public function count_pesanan_baru()
     {
         return $this->db
             ->where('status_pesanan', 'dibuat')
             ->count_all_results('penjualan');
     }
 
-    /**
-     * LIST PESANAN BARU (UNTUK DROPDOWN NOTIF)
-     */
+    // ==================================================
+    // LIST PESANAN BARU (DROPDOWN NOTIFIKASI)
+    // ==================================================
     public function get_pesanan_baru($limit = 5)
     {
         return $this->db
             ->select('
-                penjualan.id_penjualan,
-                penjualan.tanggal_pesanan,
-                penjualan.total_harga,
-                customer.nama AS nama_customer
+                p.id_penjualan,
+                p.tanggal_pesanan,
+                p.total_harga,
+                c.nama AS nama_customer
             ')
-            ->from('penjualan')
-            ->join('customer', 'customer.id_customer = penjualan.id_customer')
-            ->where('penjualan.status_pesanan', 'dibuat')
-            ->order_by('penjualan.tanggal_pesanan', 'DESC')
+            ->from('penjualan p')
+            ->join('customer c', 'c.id_customer = p.id_customer')
+            ->where('p.status_pesanan', 'dibuat')
+            ->order_by('p.tanggal_pesanan', 'DESC')
             ->limit($limit)
             ->get()
             ->result();
     }
-
-    
-
 }
