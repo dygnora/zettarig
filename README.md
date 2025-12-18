@@ -120,8 +120,12 @@ Catatan:
    ```bash
    git clone https://github.com/username/zettarig.git
 
-erDiagram
+## 🗄️ Skema Database (ERD)
 
+Berikut adalah struktur relasi database aplikasi Zettarig:
+
+```mermaid
+erDiagram
     ADMIN {
         int id_admin PK
         string username
