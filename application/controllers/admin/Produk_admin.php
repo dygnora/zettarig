@@ -20,35 +20,58 @@ class Produk_admin extends MY_Controller
     }
 
     // ==================================================
-    // LIST PRODUK (pagination + search)
+    // LIST PRODUK + SEARCH + PAGINATION
     // ==================================================
     public function index()
     {
         $data = $this->data;
 
         $keyword = $this->input->get('q', true);
-        $page    = (int) $this->input->get('page');
+        $offset  = max((int) $this->input->get('page'), 0);
         $limit   = 10;
-        $offset  = ($page > 0 ? ($page - 1) * $limit : 0);
 
-        // hitung total
-        $total = $this->Produk_model->count_all($keyword);
+        // ==================================================
+        // HITUNG TOTAL PRODUK
+        // ==================================================
+        $total_rows = $this->Produk_model->count_all($keyword);
 
-        // pagination
-        $config['base_url'] = base_url('admin/produk');
-        $config['total_rows'] = $total;
-        $config['per_page'] = $limit;
-        $config['page_query_string'] = true;
+        // ==================================================
+        // KONFIGURASI PAGINATION (ADMINLTE STYLE)
+        // ==================================================
+        $config['base_url']             = base_url('admin/produk');
+        $config['total_rows']           = $total_rows;
+        $config['per_page']             = $limit;
+        $config['page_query_string']    = true;
         $config['query_string_segment'] = 'page';
+        $config['reuse_query_string']   = true;
+
+        $config['full_tag_open']  = '<ul class="pagination pagination-sm m-0 float-right">';
+        $config['full_tag_close'] = '</ul>';
+
+        $config['num_tag_open']   = '<li class="page-item">';
+        $config['num_tag_close']  = '</li>';
+
+        $config['cur_tag_open']   = '<li class="page-item active"><a class="page-link">';
+        $config['cur_tag_close']  = '</a></li>';
+
+        $config['attributes']     = ['class' => 'page-link'];
+
         $this->pagination->initialize($config);
 
+        // ==================================================
+        // DATA KE VIEW
+        // ==================================================
         $data['title']      = 'Produk';
-        $data['produk']     = $this->Produk_model->get_paginated($limit, $offset, $keyword);
+        $data['produk']     = $this->Produk_model
+                                    ->get_paginated($limit, $offset, $keyword);
         $data['pagination'] = $this->pagination->create_links();
         $data['keyword']    = $keyword;
         $data['offset']     = $offset;
         $data['content']    = 'admin/produk/index';
 
+        // ==================================================
+        // RENDER VIA TEMPLATE
+        // ==================================================
         $this->load->view('admin/layout/template', $data);
     }
 
@@ -75,13 +98,13 @@ class Produk_admin extends MY_Controller
         $gambar = $this->_upload_gambar();
 
         $data = [
-            'nama_produk'  => $this->input->post('nama_produk', true),
-            'id_kategori'  => $this->input->post('id_kategori'),
-            'id_brand'     => $this->input->post('id_brand'),
-            'harga_jual'   => $this->input->post('harga_jual'),
-            'stok'         => 0, // stok dari pembelian supplier
-            'status_aktif' => $this->input->post('status_aktif'),
-            'gambar_produk'=> $gambar
+            'nama_produk'   => $this->input->post('nama_produk', true),
+            'id_kategori'   => $this->input->post('id_kategori'),
+            'id_brand'      => $this->input->post('id_brand'),
+            'harga_jual'    => $this->input->post('harga_jual'),
+            'stok'          => 0, // stok dari pembelian supplier
+            'status_aktif'  => $this->input->post('status_aktif'),
+            'gambar_produk' => $gambar
         ];
 
         $this->Produk_model->insert($data);
@@ -118,11 +141,11 @@ class Produk_admin extends MY_Controller
         $gambar = $this->_upload_gambar();
 
         $data = [
-            'nama_produk' => $this->input->post('nama_produk', true),
-            'id_kategori' => $this->input->post('id_kategori'),
-            'id_brand'    => $this->input->post('id_brand'),
-            'harga_jual'  => $this->input->post('harga_jual'),
-            'status_aktif'=> $this->input->post('status_aktif')
+            'nama_produk'  => $this->input->post('nama_produk', true),
+            'id_kategori'  => $this->input->post('id_kategori'),
+            'id_brand'     => $this->input->post('id_brand'),
+            'harga_jual'   => $this->input->post('harga_jual'),
+            'status_aktif' => $this->input->post('status_aktif')
         ];
 
         if ($gambar) {
@@ -137,22 +160,22 @@ class Produk_admin extends MY_Controller
     }
 
     // ==================================================
-    // AKTIF / NONAKTIF
+    // AKTIF / NONAKTIF PRODUK
     // ==================================================
     public function aktif($id)
     {
         $this->Produk_model->set_status($id, 1);
-        redirect($this->agent->referrer());
+        redirect($this->agent->referrer() ?: 'admin/produk');
     }
 
     public function nonaktif($id)
     {
         $this->Produk_model->set_status($id, 0);
-        redirect($this->agent->referrer());
+        redirect($this->agent->referrer() ?: 'admin/produk');
     }
 
     // ==================================================
-    // UPLOAD GAMBAR (PRIVATE)
+    // UPLOAD GAMBAR PRODUK
     // ==================================================
     private function _upload_gambar()
     {
@@ -160,12 +183,17 @@ class Produk_admin extends MY_Controller
             return null;
         }
 
-        $config['upload_path']   = FCPATH.'assets/uploads/produk/';
-        $config['allowed_types'] = 'jpg|jpeg|png';
-        $config['max_size']      = 2048;
-        $config['encrypt_name']  = true;
+        $path = FCPATH.'assets/uploads/produk/';
+        if (!is_dir($path)) mkdir($path, 0755, true);
 
-        $this->upload->initialize($config);
+        $config = [
+            'upload_path'   => $path,
+            'allowed_types' => 'jpg|jpeg|png',
+            'max_size'      => 2048,
+            'encrypt_name'  => true
+        ];
+
+        $this->upload->initialize($config, true);
 
         if (!$this->upload->do_upload('gambar')) {
             show_error($this->upload->display_errors('', ''));

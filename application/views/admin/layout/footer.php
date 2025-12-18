@@ -79,5 +79,25 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('input-gambar');
+    const preview = document.getElementById('preview-gambar');
+
+    if (!input || !preview) return;
+
+    input.addEventListener('change', function () {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => preview.src = e.target.result;
+        reader.readAsDataURL(this.files[0]);
+      } else {
+        preview.src = '<?= base_url('assets/uploads/produk/default.png'); ?>';
+      }
+    });
+  });
+</script>
+
+
 </body>
 </html>

@@ -33,6 +33,9 @@
 
         <div class="card-body">
 
+          <!-- ===============================
+               NAMA PRODUK
+               =============================== -->
           <div class="form-group">
             <label>Nama Produk</label>
             <input type="text"
@@ -41,6 +44,9 @@
                    required>
           </div>
 
+          <!-- ===============================
+               KATEGORI
+               =============================== -->
           <div class="form-group">
             <label>Kategori</label>
             <select name="id_kategori" class="form-control" required>
@@ -53,6 +59,9 @@
             </select>
           </div>
 
+          <!-- ===============================
+               BRAND
+               =============================== -->
           <div class="form-group">
             <label>Brand</label>
             <select name="id_brand" class="form-control" required>
@@ -65,7 +74,9 @@
             </select>
           </div>
 
-
+          <!-- ===============================
+               HARGA JUAL
+               =============================== -->
           <div class="form-group">
             <label>Harga Jual</label>
             <input type="number"
@@ -86,15 +97,19 @@
             <input type="hidden" name="stok" value="0">
           </div>
 
-          <!-- GAMBAR PRODUK -->
+          <!-- ===============================
+               GAMBAR PRODUK
+               (DEFAULT + FALLBACK + PREVIEW)
+               =============================== -->
           <div class="form-group">
             <label>Gambar Produk</label>
 
             <div class="mb-2">
               <img id="preview-gambar"
-                   src="<?= base_url('assets/img/no-image.png'); ?>"
+                   src="<?= base_url('assets/uploads/produk/default.png'); ?>"
                    class="img-thumbnail"
-                   style="max-height:120px">
+                   style="max-height:120px"
+                   onerror="this.src='<?= base_url('assets/uploads/produk/default.png'); ?>'">
             </div>
 
             <input type="file"
@@ -102,8 +117,15 @@
                    id="input-gambar"
                    class="form-control-file"
                    accept=".jpg,.jpeg,.png">
+
+            <small class="text-muted">
+              JPG / PNG • preview otomatis
+            </small>
           </div>
 
+          <!-- ===============================
+               STATUS
+               =============================== -->
           <div class="form-group">
             <label>Status</label>
             <select name="status_aktif" class="form-control">

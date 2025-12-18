@@ -8,6 +8,7 @@ class Brand_admin extends MY_Controller
     public function __construct()
     {
         parent::__construct();
+
         $this->load->model('Brand_model');
         $this->load->library(['pagination', 'upload', 'user_agent']);
         $this->load->helper(['url', 'text']);
@@ -21,23 +22,34 @@ class Brand_admin extends MY_Controller
         $data = $this->data;
 
         $keyword = $this->input->get('q', true);
-        $page    = (int) $this->input->get('page');
+        $offset  = max((int) $this->input->get('page'), 0);
         $limit   = 10;
-        $offset  = ($page > 0 ? ($page - 1) * $limit : 0);
 
         // ==================================================
-        // HITUNG TOTAL BRAND (UNTUK PAGINATION)
+        // HITUNG TOTAL BRAND
         // ==================================================
-        $total = $this->Brand_model->count_all($keyword);
+        $total_rows = $this->Brand_model->count_all($keyword);
 
         // ==================================================
-        // KONFIGURASI PAGINATION
+        // KONFIGURASI PAGINATION (ADMINLTE STYLE)
         // ==================================================
         $config['base_url']             = base_url('admin/brand');
-        $config['total_rows']           = $total;
+        $config['total_rows']           = $total_rows;
         $config['per_page']             = $limit;
         $config['page_query_string']    = true;
         $config['query_string_segment'] = 'page';
+        $config['reuse_query_string']   = true;
+
+        $config['full_tag_open']  = '<ul class="pagination pagination-sm m-0 float-right">';
+        $config['full_tag_close'] = '</ul>';
+
+        $config['num_tag_open']   = '<li class="page-item">';
+        $config['num_tag_close']  = '</li>';
+
+        $config['cur_tag_open']   = '<li class="page-item active"><a class="page-link">';
+        $config['cur_tag_close']  = '</a></li>';
+
+        $config['attributes']     = ['class' => 'page-link'];
 
         $this->pagination->initialize($config);
 
@@ -45,7 +57,8 @@ class Brand_admin extends MY_Controller
         // DATA KE VIEW
         // ==================================================
         $data['title']      = 'Brand Produk';
-        $data['brand']      = $this->Brand_model->get_paginated($limit, $offset, $keyword);
+        $data['brand']      = $this->Brand_model
+                                    ->get_paginated($limit, $offset, $keyword);
         $data['pagination'] = $this->pagination->create_links();
         $data['keyword']    = $keyword;
         $data['offset']     = $offset;
@@ -138,7 +151,7 @@ class Brand_admin extends MY_Controller
     public function aktif($id)
     {
         $this->Brand_model->set_status($id, 1);
-        redirect($this->agent->referrer());
+        redirect($this->agent->referrer() ?: 'admin/brand');
     }
 
     // ==================================================
@@ -147,11 +160,11 @@ class Brand_admin extends MY_Controller
     public function nonaktif($id)
     {
         $this->Brand_model->set_status($id, 0);
-        redirect($this->agent->referrer());
+        redirect($this->agent->referrer() ?: 'admin/brand');
     }
 
     // ==================================================
-    // UPLOAD LOGO BRAND (PRIVATE)
+    // UPLOAD LOGO BRAND
     // ==================================================
     private function _upload_logo()
     {

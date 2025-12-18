@@ -33,6 +33,9 @@
 
         <div class="card-body">
 
+          <!-- ===============================
+               NAMA PRODUK
+               =============================== -->
           <div class="form-group">
             <label>Nama Produk</label>
             <input type="text"
@@ -42,6 +45,9 @@
                    required>
           </div>
 
+          <!-- ===============================
+               KATEGORI
+               =============================== -->
           <div class="form-group">
             <label>Kategori</label>
             <select name="id_kategori" class="form-control" required>
@@ -54,6 +60,9 @@
             </select>
           </div>
 
+          <!-- ===============================
+               BRAND
+               =============================== -->
           <div class="form-group">
             <label>Brand</label>
             <select name="id_brand" class="form-control" required>
@@ -66,12 +75,15 @@
             </select>
           </div>
 
+          <!-- ===============================
+               HARGA JUAL
+               =============================== -->
           <div class="form-group">
             <label>Harga Jual</label>
             <input type="number"
                    name="harga_jual"
                    class="form-control"
-                   value="<?= $produk->harga_jual; ?>"
+                   value="<?= (int) $produk->harga_jual; ?>"
                    required>
           </div>
 
@@ -87,21 +99,26 @@
             <input type="hidden" name="stok" value="<?= (int) $produk->stok; ?>">
           </div>
 
-          <!-- GAMBAR PRODUK -->
+          <!-- ===============================
+               GAMBAR PRODUK
+               (DEFAULT + FALLBACK + PREVIEW)
+               =============================== -->
           <div class="form-group">
             <label>Gambar Produk</label>
 
             <?php
-              $gambar_lama = !empty($produk->gambar_produk)
+              $gambar_default = base_url('assets/uploads/produk/default.png');
+              $gambar_produk  = !empty($produk->gambar_produk)
                 ? base_url('assets/uploads/produk/'.$produk->gambar_produk)
-                : base_url('assets/img/no-image.png');
+                : $gambar_default;
             ?>
 
             <div class="mb-2">
               <img id="preview-gambar"
-                   src="<?= $gambar_lama; ?>"
+                   src="<?= $gambar_produk; ?>"
                    class="img-thumbnail"
-                   style="max-height:120px">
+                   style="max-height:120px"
+                   onerror="this.src='<?= $gambar_default; ?>'">
             </div>
 
             <input type="file"
@@ -132,3 +149,4 @@
 
   </div>
 </section>
+
