@@ -136,8 +136,6 @@ zettarig
 │  └─ libraries
 └─ index.php                # Entry Point
 
-</details>
-
 ---
 
 ## 🧠 Arsitektur & Konsep Penting
