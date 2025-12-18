@@ -67,8 +67,76 @@ Aplikasi ini ditujukan untuk **pengelolaan produk, supplier, penjualan, pembelia
 
 ---
 
-## 📂 Struktur Folder (Ringkas)
+## 📂 Struktur Folder & Arsitektur
 
+Berikut adalah struktur direktori lengkap dari aplikasi Zettarig. Aplikasi ini mengikuti pola desain **MVC (Model-View-Controller)**.
+
+<details>
+<summary><b>Klik untuk melihat Struktur Folder Lengkap</b></summary>
+
+```text
+zettarig
+├─ .editorconfig
+├─ .htaccess
+├─ application
+│  ├─ config                # Konfigurasi (Database, Routes, Autoload)
+│  ├─ controllers           # Logika Aplikasi (Admin Panel)
+│  │  ├─ admin
+│  │  │  ├─ Auth_admin.php
+│  │  │  ├─ Brand_admin.php
+│  │  │  ├─ Cod_admin.php
+│  │  │  ├─ Customer_admin.php
+│  │  │  ├─ Dashboard_admin.php
+│  │  │  ├─ Kategori_admin.php
+│  │  │  ├─ Laporan_admin.php
+│  │  │  ├─ Pembayaran_admin.php
+│  │  │  ├─ Pembelian_supplier_admin.php
+│  │  │  ├─ Penjualan_admin.php
+│  │  │  ├─ Produk_admin.php
+│  │  │  └─ Supplier_admin.php
+│  │  └─ Welcome.php
+│  ├─ core                  # Core Extension (MY_Controller)
+│  ├─ helpers               # Custom Helpers (Menu & Status)
+│  ├─ models                # Database Logic
+│  │  ├─ Brand_model.php
+│  │  ├─ Cod_model.php
+│  │  ├─ Customer_model.php
+│  │  ├─ Dashboard_model.php
+│  │  ├─ Detail_pembelian_supplier_model.php
+│  │  ├─ Kategori_model.php
+│  │  ├─ Laporan_model.php
+│  │  ├─ Pembayaran_model.php
+│  │  ├─ Pembelian_supplier_model.php
+│  │  ├─ Penjualan_model.php
+│  │  ├─ Produk_model.php
+│  │  └─ Supplier_model.php
+│  ├─ third_party           # Library Pihak Ketiga (DomPDF)
+│  └─ views                 # Tampilan (HTML/PHP)
+│     ├─ admin
+│     │  ├─ auth            # Halaman Login
+│     │  ├─ brand           # CRUD Brand
+│     │  ├─ cod             # Manajemen COD
+│     │  ├─ customer        # Data Pelanggan
+│     │  ├─ dashboard       # Halaman Utama
+│     │  ├─ kategori        # CRUD Kategori
+│     │  ├─ laporan         # Laporan Penjualan
+│     │  ├─ laporan_pembelian
+│     │  ├─ layout          # Template (Header, Sidebar, Footer)
+│     │  ├─ pembayaran      # Verifikasi Transfer
+│     │  ├─ pembelian_supplier
+│     │  ├─ penjualan       # Order Masuk
+│     │  ├─ produk          # CRUD Produk
+│     │  └─ supplier        # Data Supplier
+│     └─ errors
+├─ assets                   # Statis (CSS, JS, Images, AdminLTE)
+├─ system                   # Core CodeIgniter Framework
+│  ├─ core
+│  ├─ database
+│  ├─ helpers
+│  └─ libraries
+└─ index.php                # Entry Point
+
+</details>
 
 ---
 
