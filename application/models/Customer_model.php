@@ -77,4 +77,13 @@ class Customer_model extends CI_Model
     {
         return $this->update($id, ['status_aktif' => $status]);
     }
+
+    // ===============================
+    // COD PERMISSION
+    // ===============================
+    public function set_cod_allowed($id, $status)
+    {
+        return $this->update($id, ['is_cod_allowed' => $status]);
+    }
+
 }

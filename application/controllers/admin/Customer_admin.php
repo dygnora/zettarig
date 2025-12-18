@@ -146,4 +146,23 @@ class Customer_admin extends MY_Controller
         $this->Customer_model->set_status($id, 0);
         redirect($this->agent->referrer());
     }
+
+    // ==================================================
+    // IZINKAN COD (WHITELIST)
+    // ==================================================
+    public function allow_cod($id)
+    {
+        $this->Customer_model->set_cod_allowed($id, 1);
+        redirect($this->agent->referrer());
+    }
+
+    // ==================================================
+    // BLOKIR COD (BLACKLIST)
+    // ==================================================
+    public function block_cod($id)
+    {
+        $this->Customer_model->set_cod_allowed($id, 0);
+        redirect($this->agent->referrer());
+    }
+
 }
