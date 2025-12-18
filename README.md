@@ -189,6 +189,11 @@ Catatan:
    ```bash
    git clone https://github.com/username/zettarig.git
 
+## 🗄️ Skema Database (ERD)
+
+Berikut adalah struktur relasi database aplikasi Zettarig:
+
+```mermaid
 erDiagram
     ADMIN {
         int id_admin PK
@@ -228,19 +233,14 @@ erDiagram
     PRODUK {
         int id_produk PK
         string nama_produk
-        string slug_produk
         int id_kategori FK
         int id_brand FK
         int id_supplier FK
-        text deskripsi
         int harga_modal
         int harga_jual
         int stok
-        int berat_produk
-        string gambar_produk
         boolean status_aktif
-        timestamp tanggal_dibuat
-        timestamp tanggal_diubah
+        string gambar_produk
     }
 
     CUSTOMER {
@@ -260,10 +260,7 @@ erDiagram
         int id_penjualan PK
         int id_customer FK
         int total_harga
-        int total_berat
-        enum metode_pembayaran
-        string status_pesanan
-        text alamat_pengiriman
+        enum status_pesanan
         timestamp tanggal_pesanan
     }
 
@@ -309,17 +306,8 @@ erDiagram
         int dp_dibayar
         int sisa_pembayaran
         string bukti_dp
-        timestamp tanggal_upload_dp
         enum status_dp
         enum status_pelunasan
-    }
-
-    TIMELINE_PESANAN {
-        int id_timeline PK
-        int id_penjualan FK
-        string status_tahap
-        timestamp waktu
-        text catatan
     }
 
     %% RELATIONSHIPS
@@ -337,5 +325,3 @@ erDiagram
 
     PENJUALAN ||--|| PEMBAYARAN_TRANSFER : dibayar_transfer
     PENJUALAN ||--|| PEMBAYARAN_COD : dibayar_cod
-
-    PENJUALAN ||--o{ TIMELINE_PESANAN : memiliki
