@@ -183,7 +183,7 @@ class Produk_admin extends MY_Controller
 
         $this->upload->initialize($config);
 
-        if (!$this->upload->do_upload('gambar_produk')) {
+        if (!$this->upload->do_upload('gambar')) {
             $this->session->set_flashdata(
                 'error',
                 $this->upload->display_errors('', '')

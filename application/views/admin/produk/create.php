@@ -110,7 +110,7 @@
             </div>
 
             <input type="file"
-                   name="gambar_produk"
+                   name="gambar"
                    id="input-gambar"
                    class="form-control-file"
                    accept=".jpg,.jpeg,.png">
