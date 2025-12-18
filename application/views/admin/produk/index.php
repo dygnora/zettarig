@@ -53,14 +53,13 @@
             <tr>
               <th class="text-center" width="50">No</th>
               <th width="150">Nama Produk</th>
-              <th width="50">Kategori</th>
-              <th width="50">Brand</th>
-              <th width="100">Supplier</th>
-              <th width="50" class="text-center">Gambar</th>
-              <th width="100">Harga</th>
+              <th width="80">Kategori</th>
+              <th width="80">Brand</th>
+              <th width="60" class="text-center">Gambar</th>
+              <th width="120">Harga</th>
               <th width="60" class="text-center">Stok</th>
-              <th width="75" class="text-center">Status</th>
-              <th width="75" class="text-center">Aksi</th>
+              <th width="80" class="text-center">Status</th>
+              <th width="80" class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -96,10 +95,6 @@
                   <?= htmlspecialchars($p->nama_brand); ?>
                 </td>
 
-                <td class="align-middle">
-                  <?= $p->nama_supplier ?: '-'; ?>
-                </td>
-
                 <td class="text-center align-middle">
                   <img src="<?= $imgUrl; ?>"
                        class="img-thumbnail"
@@ -110,9 +105,6 @@
                   Rp <?= number_format($p->harga_jual, 0, ',', '.'); ?>
                 </td>
 
-                <!-- ===============================
-                     STOK PRODUK
-                     =============================== -->
                 <td class="text-center align-middle">
                   <?= (int) $p->stok; ?>
                 </td>
@@ -147,7 +139,7 @@
             <?php endforeach; ?>
           <?php else : ?>
             <tr>
-              <td colspan="10" class="text-center text-muted">
+              <td colspan="9" class="text-center text-muted">
                 Data tidak ditemukan
               </td>
             </tr>

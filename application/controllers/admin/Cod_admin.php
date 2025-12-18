@@ -8,20 +8,62 @@ class Cod_admin extends MY_Controller
     public function __construct()
     {
         parent::__construct();
+
         $this->load->model('Cod_model');
+        $this->load->library(['pagination', 'user_agent']);
+        $this->load->helper(['url']);
     }
 
     // ==================================================
-    // LIST COD & DP
+    // LIST COD & DP + PAGINATION
     // ==================================================
     public function index()
     {
         $data = $this->data;
 
-        $data['title']   = 'COD & DP';
-        $data['cod']     = $this->Cod_model->get_all();
-        $data['content'] = 'admin/cod/index';
+        $offset = max((int) $this->input->get('page'), 0);
+        $limit  = 10;
 
+        // ==================================================
+        // HITUNG TOTAL DATA
+        // ==================================================
+        $total_rows = $this->Cod_model->count_all();
+
+        // ==================================================
+        // KONFIGURASI PAGINATION (ADMINLTE STYLE)
+        // ==================================================
+        $config['base_url']             = base_url('admin/cod');
+        $config['total_rows']           = $total_rows;
+        $config['per_page']             = $limit;
+        $config['page_query_string']    = true;
+        $config['query_string_segment'] = 'page';
+        $config['reuse_query_string']   = true;
+
+        $config['full_tag_open']  = '<ul class="pagination pagination-sm m-0 float-right">';
+        $config['full_tag_close'] = '</ul>';
+
+        $config['num_tag_open']   = '<li class="page-item">';
+        $config['num_tag_close']  = '</li>';
+
+        $config['cur_tag_open']   = '<li class="page-item active"><a class="page-link">';
+        $config['cur_tag_close']  = '</a></li>';
+
+        $config['attributes']     = ['class' => 'page-link'];
+
+        $this->pagination->initialize($config);
+
+        // ==================================================
+        // DATA KE VIEW
+        // ==================================================
+        $data['title']      = 'COD & DP';
+        $data['cod']        = $this->Cod_model->get_paginated($limit, $offset);
+        $data['pagination'] = $this->pagination->create_links();
+        $data['offset']     = $offset;
+        $data['content']    = 'admin/cod/index';
+
+        // ==================================================
+        // RENDER VIA TEMPLATE
+        // ==================================================
         $this->load->view('admin/layout/template', $data);
     }
 

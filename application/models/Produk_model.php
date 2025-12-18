@@ -6,21 +6,19 @@ class Produk_model extends CI_Model
     protected $table = 'produk';
 
     // ==================================================
-    // HITUNG TOTAL PRODUK (UNTUK PAGINATION + SEARCH)
+    // HITUNG TOTAL PRODUK
     // ==================================================
     public function count_all($keyword = null)
     {
         $this->db->from('produk p');
         $this->db->join('kategori_produk k', 'k.id_kategori = p.id_kategori');
         $this->db->join('brand b', 'b.id_brand = p.id_brand');
-        $this->db->join('supplier s', 's.id_supplier = p.id_supplier', 'left');
 
         if ($keyword) {
             $this->db->group_start()
                 ->like('p.nama_produk', $keyword)
                 ->or_like('k.nama_kategori', $keyword)
                 ->or_like('b.nama_brand', $keyword)
-                ->or_like('s.nama_supplier', $keyword)
                 ->group_end();
         }
 
@@ -28,7 +26,7 @@ class Produk_model extends CI_Model
     }
 
     // ==================================================
-    // LIST PRODUK (JOIN KATEGORI + BRAND + SUPPLIER)
+    // LIST PRODUK + JOIN KATEGORI & BRAND
     // ==================================================
     public function get_paginated($limit, $offset, $keyword = null)
     {
@@ -39,23 +37,18 @@ class Produk_model extends CI_Model
             p.stok,
             p.gambar_produk,
             p.status_aktif,
-
             k.nama_kategori,
-            b.nama_brand,
-            s.nama_supplier
+            b.nama_brand
         ');
-
         $this->db->from('produk p');
         $this->db->join('kategori_produk k', 'k.id_kategori = p.id_kategori');
         $this->db->join('brand b', 'b.id_brand = p.id_brand');
-        $this->db->join('supplier s', 's.id_supplier = p.id_supplier', 'left');
 
         if ($keyword) {
             $this->db->group_start()
                 ->like('p.nama_produk', $keyword)
                 ->or_like('k.nama_kategori', $keyword)
                 ->or_like('b.nama_brand', $keyword)
-                ->or_like('s.nama_supplier', $keyword)
                 ->group_end();
         }
 
@@ -67,7 +60,7 @@ class Produk_model extends CI_Model
     }
 
     // ==================================================
-    // AMBIL 1 PRODUK BERDASARKAN ID
+    // GET BY ID
     // ==================================================
     public function get_by_id($id)
     {
@@ -78,7 +71,7 @@ class Produk_model extends CI_Model
     }
 
     // ==================================================
-    // INSERT PRODUK BARU
+    // INSERT
     // ==================================================
     public function insert($data)
     {
@@ -86,7 +79,7 @@ class Produk_model extends CI_Model
     }
 
     // ==================================================
-    // UPDATE PRODUK
+    // UPDATE
     // ==================================================
     public function update($id, $data)
     {
@@ -96,7 +89,7 @@ class Produk_model extends CI_Model
     }
 
     // ==================================================
-    // AKTIF / NONAKTIF PRODUK
+    // SET STATUS
     // ==================================================
     public function set_status($id, $status)
     {
@@ -104,8 +97,8 @@ class Produk_model extends CI_Model
     }
 
     // ==================================================
-    // UPDATE STOK + HARGA MODAL
-    // (DIGUNAKAN SAAT PEMBELIAN SUPPLIER)
+    // UPDATE STOK & HARGA MODAL
+    // (dipanggil dari pembelian supplier)
     // ==================================================
     public function update_stok_dan_modal($id_produk, $qty, $harga_modal)
     {
@@ -126,8 +119,7 @@ class Produk_model extends CI_Model
     }
 
     // ==================================================
-    // AMBIL SEMUA PRODUK AKTIF
-    // (UNTUK TRANSAKSI PENJUALAN)
+    // PRODUK AKTIF (UNTUK TRANSAKSI)
     // ==================================================
     public function get_all_aktif()
     {
@@ -136,16 +128,5 @@ class Produk_model extends CI_Model
             ->order_by('nama_produk', 'ASC')
             ->get($this->table)
             ->result();
-    }
-
-    // ==================================================
-    // CEK STOK CUKUP (VALIDASI SEBELUM TRANSAKSI)
-    // ==================================================
-    public function cek_stok($id_produk, $qty)
-    {
-        $produk = $this->get_by_id($id_produk);
-        if (!$produk) return false;
-
-        return ($produk->stok >= $qty);
     }
 }

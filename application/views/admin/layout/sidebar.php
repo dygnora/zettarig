@@ -34,7 +34,7 @@
         <!-- ================= DASHBOARD ================= -->
         <li class="nav-item">
           <a href="<?= base_url('admin/dashboard'); ?>"
-             class="nav-link <?= active_menu('dashboard'); ?>">
+             class="nav-link <?= active_menu('dashboard_admin'); ?>">
             <i class="nav-icon fas fa-tachometer-alt"></i>
             <p>Dashboard</p>
           </a>
@@ -45,7 +45,7 @@
 
         <li class="nav-item">
           <a href="<?= base_url('admin/kategori'); ?>"
-             class="nav-link <?= active_menu('kategori'); ?>">
+             class="nav-link <?= active_menu('kategori_admin'); ?>">
             <i class="nav-icon fas fa-tags"></i>
             <p>Kategori Produk</p>
           </a>
@@ -53,7 +53,7 @@
 
         <li class="nav-item">
           <a href="<?= base_url('admin/brand'); ?>"
-             class="nav-link <?= active_menu('brand'); ?>">
+             class="nav-link <?= active_menu('brand_admin'); ?>">
             <i class="nav-icon fas fa-copyright"></i>
             <p>Brand</p>
           </a>
@@ -61,7 +61,7 @@
 
         <li class="nav-item">
           <a href="<?= base_url('admin/supplier'); ?>"
-             class="nav-link <?= active_menu('supplier'); ?>">
+             class="nav-link <?= active_menu('supplier_admin'); ?>">
             <i class="nav-icon fas fa-truck"></i>
             <p>Supplier</p>
           </a>
@@ -69,7 +69,7 @@
 
         <li class="nav-item">
           <a href="<?= base_url('admin/produk'); ?>"
-             class="nav-link <?= active_menu('produk'); ?>">
+             class="nav-link <?= active_menu('produk_admin'); ?>">
             <i class="nav-icon fas fa-microchip"></i>
             <p>Produk</p>
           </a>
@@ -77,7 +77,7 @@
 
         <li class="nav-item">
           <a href="<?= base_url('admin/customer'); ?>"
-             class="nav-link <?= active_menu('customer'); ?>">
+             class="nav-link <?= active_menu('customer_admin'); ?>">
             <i class="nav-icon fas fa-users"></i>
             <p>Customer</p>
           </a>
@@ -88,7 +88,7 @@
 
         <li class="nav-item">
           <a href="<?= base_url('admin/penjualan'); ?>"
-             class="nav-link <?= active_menu('penjualan'); ?>">
+             class="nav-link <?= active_menu('penjualan_admin'); ?>">
             <i class="nav-icon fas fa-shopping-cart"></i>
             <p>Penjualan</p>
           </a>
@@ -96,7 +96,7 @@
 
         <li class="nav-item">
           <a href="<?= base_url('admin/pembelian'); ?>"
-             class="nav-link <?= active_menu('pembelian'); ?>">
+             class="nav-link <?= active_menu('pembelian_supplier_admin'); ?>">
             <i class="nav-icon fas fa-boxes"></i>
             <p>Pembelian Supplier</p>
           </a>
@@ -104,7 +104,7 @@
 
         <li class="nav-item">
           <a href="<?= base_url('admin/pembayaran'); ?>"
-             class="nav-link <?= active_menu('pembayaran'); ?>">
+             class="nav-link <?= active_menu('pembayaran_admin'); ?>">
             <i class="nav-icon fas fa-credit-card"></i>
             <p>Pembayaran Transfer</p>
           </a>
@@ -112,7 +112,7 @@
 
         <li class="nav-item">
           <a href="<?= base_url('admin/cod'); ?>"
-             class="nav-link <?= active_menu('cod'); ?>">
+             class="nav-link <?= active_menu('cod_admin'); ?>">
             <i class="nav-icon fas fa-money-bill-wave"></i>
             <p>Pembayaran Cash</p>
           </a>
@@ -123,9 +123,17 @@
 
         <li class="nav-item">
           <a href="<?= base_url('admin/laporan'); ?>"
-             class="nav-link <?= active_menu('laporan'); ?>">
+             class="nav-link <?= active_menu('laporan_admin'); ?>">
             <i class="nav-icon fas fa-chart-line"></i>
-            <p>Laporan</p>
+            <p>Laporan Penjualan</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="<?= base_url('admin/laporan/pembelian'); ?>"
+             class="nav-link <?= active_menu('laporan_pembelian_admin'); ?>">
+            <i class="nav-icon fas fa-clipboard-list"></i>
+            <p>Laporan Pembelian</p>
           </a>
         </li>
 

@@ -1,11 +1,11 @@
 <!-- ==================================================
-     HEADER
+     CONTENT HEADER
 ================================================== -->
 <section class="content-header">
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1>Detail Laporan Customer</h1>
+        <h1>Detail Laporan Supplier</h1>
       </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
@@ -13,7 +13,9 @@
             <a href="<?= base_url('admin/dashboard'); ?>">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="<?= base_url('admin/laporan'); ?>">Laporan</a>
+            <a href="<?= base_url('admin/laporan/pembelian'); ?>">
+              Laporan Pembelian
+            </a>
           </li>
           <li class="breadcrumb-item active">Detail</li>
         </ol>
@@ -28,20 +30,20 @@
 <section class="content">
   <div class="container-fluid">
 
-    <!-- INFO CUSTOMER -->
+    <!-- INFO SUPPLIER -->
     <div class="card card-outline card-primary mb-3">
       <div class="card-body">
-        <strong>Customer :</strong>
-        <?= htmlspecialchars($customer->nama); ?>
+        <strong>Supplier :</strong>
+        <?= htmlspecialchars($supplier->nama_supplier); ?>
       </div>
     </div>
 
-    <!-- TABEL DETAIL TRANSAKSI -->
+    <!-- TABEL DETAIL -->
     <div class="card">
       <div class="card-header">
         <h3 class="card-title">
-          <i class="fas fa-shopping-cart mr-1"></i>
-          Riwayat Transaksi
+          <i class="fas fa-boxes mr-1"></i>
+          Detail Produk yang Dibeli
         </h3>
       </div>
 
@@ -51,11 +53,10 @@
             <tr>
               <th width="50">No</th>
               <th>Tanggal</th>
-              <th>Produk</th>
+              <th>Nama Produk</th>
               <th width="80">Qty</th>
-              <th width="120">Metode</th>
-              <th width="120">Status</th>
-              <th width="150">Subtotal</th>
+              <th width="150">Harga Modal</th>
+              <th width="180">Subtotal</th>
             </tr>
           </thead>
           <tbody>
@@ -66,24 +67,21 @@
             ?>
 
             <?php if (!empty($detail)) : ?>
-              <?php foreach ($detail as $d): ?>
+              <?php foreach ($detail as $d) : ?>
                 <?php $grand_total += $d->subtotal; ?>
                 <tr>
                   <td><?= $no++; ?></td>
-                  <td><?= date('d-m-Y', strtotime($d->tanggal_pesanan)); ?></td>
+                  <td><?= date('d-m-Y', strtotime($d->tanggal_pembelian)); ?></td>
                   <td><?= htmlspecialchars($d->nama_produk); ?></td>
-                  <td><?= $d->jumlah; ?></td>
-                  <td><?= strtoupper($d->metode_pembayaran); ?></td>
-                  <td><?= ucfirst($d->status_pesanan); ?></td>
-                  <td>
-                    Rp <?= number_format($d->subtotal, 0, ',', '.'); ?>
-                  </td>
+                  <td class="text-center"><?= (int) $d->jumlah_beli; ?></td>
+                  <td>Rp <?= number_format($d->harga_modal_satuan, 0, ',', '.'); ?></td>
+                  <td>Rp <?= number_format($d->subtotal, 0, ',', '.'); ?></td>
                 </tr>
               <?php endforeach; ?>
-            <?php else: ?>
+            <?php else : ?>
               <tr>
-                <td colspan="7" class="text-center text-muted py-3">
-                  Tidak ada transaksi pada periode ini
+                <td colspan="6" class="text-center text-muted py-3">
+                  Tidak ada data pembelian
                 </td>
               </tr>
             <?php endif; ?>
@@ -93,12 +91,8 @@
           <?php if (!empty($detail)) : ?>
           <tfoot>
             <tr>
-              <th colspan="6" class="text-right">
-                TOTAL KESELURUHAN
-              </th>
-              <th>
-                Rp <?= number_format($grand_total, 0, ',', '.'); ?>
-              </th>
+              <th colspan="5" class="text-right">TOTAL PEMBELIAN</th>
+              <th>Rp <?= number_format($grand_total, 0, ',', '.'); ?></th>
             </tr>
           </tfoot>
           <?php endif; ?>
@@ -107,7 +101,7 @@
       </div>
 
       <div class="card-footer">
-        <a href="<?= base_url('admin/laporan?mode='.$mode.'&start='.$start.'&end='.$end); ?>"
+        <a href="<?= base_url('admin/laporan/pembelian?start='.$start.'&end='.$end); ?>"
            class="btn btn-secondary btn-sm">
           <i class="fas fa-arrow-left"></i> Kembali
         </a>

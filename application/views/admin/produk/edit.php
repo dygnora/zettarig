@@ -67,19 +67,6 @@
           </div>
 
           <div class="form-group">
-            <label>Supplier</label>
-            <select name="id_supplier" class="form-control">
-              <option value="">-- Tidak ada --</option>
-              <?php foreach ($supplier as $s): ?>
-                <option value="<?= $s->id_supplier; ?>"
-                  <?= $s->id_supplier == $produk->id_supplier ? 'selected' : ''; ?>>
-                  <?= htmlspecialchars($s->nama_supplier); ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-
-          <div class="form-group">
             <label>Harga Jual</label>
             <input type="number"
                    name="harga_jual"
@@ -89,16 +76,15 @@
           </div>
 
           <!-- ===============================
-               STOK PRODUK
+               STOK (READONLY)
                =============================== -->
           <div class="form-group">
-            <label>Stok</label>
+            <label>Stok (otomatis dari transaksi)</label>
             <input type="number"
-                   name="stok"
                    class="form-control"
                    value="<?= (int) $produk->stok; ?>"
-                   min="0"
-                   required>
+                   readonly>
+            <input type="hidden" name="stok" value="<?= (int) $produk->stok; ?>">
           </div>
 
           <!-- GAMBAR PRODUK -->

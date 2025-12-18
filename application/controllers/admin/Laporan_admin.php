@@ -14,15 +14,15 @@ class Laporan_admin extends MY_Controller
     }
 
     // ==================================================
-    // LAPORAN PENJUALAN (GROUP BY CUSTOMER)
+    // INDEX LAPORAN
     // ==================================================
     public function index()
     {
         $data = $this->data;
 
-        $mode  = $this->input->get('mode') ?: 'harian';
-        $start = $this->input->get('start');
-        $end   = $this->input->get('end');
+        $mode  = $this->input->get('mode') ?? '';
+        $start = $this->input->get('start') ?? '';
+        $end   = $this->input->get('end') ?? '';
 
         $data['title']   = 'Laporan Penjualan';
         $data['mode']    = $mode;
@@ -32,7 +32,6 @@ class Laporan_admin extends MY_Controller
             ->laporan_penjualan_group_user($mode, $start, $end);
 
         $data['content'] = 'admin/laporan/index';
-
         $this->load->view('admin/layout/template', $data);
     }
 
@@ -43,9 +42,9 @@ class Laporan_admin extends MY_Controller
     {
         $data = $this->data;
 
-        $mode  = $this->input->get('mode') ?: 'harian';
-        $start = $this->input->get('start');
-        $end   = $this->input->get('end');
+        $mode  = $this->input->get('mode') ?? '';
+        $start = $this->input->get('start') ?? '';
+        $end   = $this->input->get('end') ?? '';
 
         $customer = $this->Laporan_model->get_customer($id_customer);
         if (!$customer) show_404();
@@ -55,28 +54,26 @@ class Laporan_admin extends MY_Controller
         $data['mode']     = $mode;
         $data['start']    = $start;
         $data['end']      = $end;
-
-        $data['detail'] = $this->Laporan_model
+        $data['detail']   = $this->Laporan_model
             ->detail_penjualan_user($id_customer, $mode, $start, $end);
 
         $data['content'] = 'admin/laporan/detail_user';
-
         $this->load->view('admin/layout/template', $data);
     }
 
     // ==================================================
-    // EXPORT LAPORAN KE PDF
+    // EXPORT PDF
     // ==================================================
     public function export_pdf()
     {
-        $mode  = $this->input->get('mode') ?: 'harian';
-        $start = $this->input->get('start');
-        $end   = $this->input->get('end');
+        $mode  = $this->input->get('mode') ?? '';
+        $start = $this->input->get('start') ?? '';
+        $end   = $this->input->get('end') ?? '';
 
         $data['laporan'] = $this->Laporan_model
             ->laporan_penjualan_group_user($mode, $start, $end);
 
-        require_once APPPATH . 'third_party/dompdf/autoload.inc.php';
+        require_once APPPATH.'third_party/dompdf/autoload.inc.php';
 
         $dompdf = new Dompdf();
         $html   = $this->load->view('admin/laporan/export_pdf', $data, true);
@@ -88,13 +85,13 @@ class Laporan_admin extends MY_Controller
     }
 
     // ==================================================
-    // EXPORT LAPORAN KE EXCEL (CSV)
+    // EXPORT EXCEL
     // ==================================================
     public function export_excel()
     {
-        $mode  = $this->input->get('mode') ?: 'harian';
-        $start = $this->input->get('start');
-        $end   = $this->input->get('end');
+        $mode  = $this->input->get('mode') ?? '';
+        $start = $this->input->get('start') ?? '';
+        $end   = $this->input->get('end') ?? '';
 
         $laporan = $this->Laporan_model
             ->laporan_penjualan_group_user($mode, $start, $end);
@@ -103,12 +100,7 @@ class Laporan_admin extends MY_Controller
         header("Content-Disposition: attachment; filename=laporan_penjualan.csv");
 
         $output = fopen("php://output", "w");
-
-        fputcsv($output, [
-            'Customer',
-            'Total Transaksi',
-            'Total Belanja'
-        ]);
+        fputcsv($output, ['Customer','Total Transaksi','Total Belanja']);
 
         foreach ($laporan as $r) {
             fputcsv($output, [

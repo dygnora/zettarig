@@ -1,35 +1,37 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+// ==================================================
+// HELPER : ACTIVE MENU (EXACT CONTROLLER MATCH)
+// DESKRIPSI:
+// - Menandai menu aktif berdasarkan nama controller
+// - Menghindari konflik substring (pembelian vs laporan_pembelian)
+// ==================================================
+
 if (!function_exists('active_menu')) {
-  function active_menu($menu)
+  function active_menu($controller)
   {
     $CI =& get_instance();
-    $class = strtolower($CI->router->fetch_class());
 
-    /*
-      Contoh:
-      Kategori_admin  -> kategori_admin
-      Produk_admin    -> produk_admin
-    */
+    // nama controller yang sedang dibuka
+    $current = strtolower($CI->router->fetch_class());
 
-    // cocokkan: kategori dengan kategori_admin
-    if (strpos($class, strtolower($menu)) !== false) {
-      return 'active';
-    }
-
-    return '';
+    // cocokkan EXACT
+    return ($current === strtolower($controller)) ? 'active' : '';
   }
 }
 
+// ==================================================
+// HELPER : ACTIVE TREE (UNTUK SUBMENU)
+// ==================================================
 if (!function_exists('active_tree')) {
-  function active_tree($menus = [])
+  function active_tree($controllers = [])
   {
     $CI =& get_instance();
-    $class = strtolower($CI->router->fetch_class());
+    $current = strtolower($CI->router->fetch_class());
 
-    foreach ($menus as $menu) {
-      if (strpos($class, strtolower($menu)) !== false) {
+    foreach ($controllers as $ctrl) {
+      if ($current === strtolower($ctrl)) {
         return 'menu-open';
       }
     }

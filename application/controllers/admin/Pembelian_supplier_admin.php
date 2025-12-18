@@ -8,27 +8,70 @@ class Pembelian_supplier_admin extends MY_Controller
     public function __construct()
     {
         parent::__construct();
+
         $this->load->model([
             'Pembelian_supplier_model',
             'Detail_pembelian_supplier_model',
             'Supplier_model',
             'Produk_model'
         ]);
-        $this->load->database();
+
+        $this->load->library(['pagination', 'user_agent']);
         $this->load->helper(['url']);
+        $this->load->database();
     }
 
     // ==================================================
-    // LIST PEMBELIAN SUPPLIER
+    // LIST PEMBELIAN SUPPLIER + PAGINATION
     // ==================================================
     public function index()
     {
         $data = $this->data;
 
-        $data['title']     = 'Pembelian Supplier';
-        $data['pembelian'] = $this->Pembelian_supplier_model->get_all_with_supplier();
-        $data['content']   = 'admin/pembelian_supplier/index';
+        $offset = max((int) $this->input->get('page'), 0);
+        $limit  = 10;
 
+        // ==================================================
+        // HITUNG TOTAL PEMBELIAN
+        // ==================================================
+        $total_rows = $this->Pembelian_supplier_model->count_all();
+
+        // ==================================================
+        // KONFIGURASI PAGINATION (ADMINLTE STYLE)
+        // ==================================================
+        $config['base_url']             = base_url('admin/pembelian_supplier');
+        $config['total_rows']           = $total_rows;
+        $config['per_page']             = $limit;
+        $config['page_query_string']    = true;
+        $config['query_string_segment'] = 'page';
+        $config['reuse_query_string']   = true;
+
+        $config['full_tag_open']  = '<ul class="pagination pagination-sm m-0 float-right">';
+        $config['full_tag_close'] = '</ul>';
+
+        $config['num_tag_open']   = '<li class="page-item">';
+        $config['num_tag_close']  = '</li>';
+
+        $config['cur_tag_open']   = '<li class="page-item active"><a class="page-link">';
+        $config['cur_tag_close']  = '</a></li>';
+
+        $config['attributes']     = ['class' => 'page-link'];
+
+        $this->pagination->initialize($config);
+
+        // ==================================================
+        // DATA KE VIEW
+        // ==================================================
+        $data['title']      = 'Pembelian Supplier';
+        $data['pembelian']  = $this->Pembelian_supplier_model
+                                ->get_paginated($limit, $offset);
+        $data['pagination'] = $this->pagination->create_links();
+        $data['offset']     = $offset;
+        $data['content']    = 'admin/pembelian_supplier/index';
+
+        // ==================================================
+        // RENDER VIA TEMPLATE
+        // ==================================================
         $this->load->view('admin/layout/template', $data);
     }
 
@@ -55,8 +98,8 @@ class Pembelian_supplier_admin extends MY_Controller
         $this->db->trans_begin();
 
         try {
-            $id_supplier = $this->input->post('id_supplier');
-            $id_produk   = $this->input->post('id_produk');
+            $id_supplier = $this->input->post('id_supplier', true);
+            $id_produk   = $this->input->post('id_produk', true);
             $qty         = (int) $this->input->post('jumlah_beli');
             $harga_modal = (int) $this->input->post('harga_modal_satuan');
             $subtotal    = $qty * $harga_modal;
@@ -114,7 +157,8 @@ class Pembelian_supplier_admin extends MY_Controller
 
         $data['title']     = 'Detail Pembelian Supplier';
         $data['pembelian'] = $pembelian;
-        $data['detail']    = $this->Detail_pembelian_supplier_model->get_by_pembelian($id);
+        $data['detail']    = $this->Detail_pembelian_supplier_model
+                                ->get_by_pembelian($id);
         $data['content']   = 'admin/pembelian_supplier/detail';
 
         $this->load->view('admin/layout/template', $data);

@@ -3,10 +3,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Penjualan_model extends CI_Model
 {
-    /**
-     * Ambil semua penjualan (LIST)
-     * Dipakai di admin/penjualan
-     */
+    // ==================================================
+    // LIST PENJUALAN (TANPA PAGINATION)
+    // Dipakai jika butuh semua data (mis. export)
+    // ==================================================
     public function get_all()
     {
         return $this->db
@@ -25,9 +25,31 @@ class Penjualan_model extends CI_Model
             ->result();
     }
 
-    /**
-     * Ambil header penjualan (DETAIL)
-     */
+    // ==================================================
+    // LIST PENJUALAN + PAGINATION
+    // ==================================================
+    public function get_paginated($limit, $offset)
+    {
+        return $this->db
+            ->select('
+                p.id_penjualan,
+                p.tanggal_pesanan,
+                p.total_harga,
+                p.metode_pembayaran,
+                p.status_pesanan,
+                c.nama AS nama_customer
+            ')
+            ->from('penjualan p')
+            ->join('customer c', 'c.id_customer = p.id_customer')
+            ->order_by('p.tanggal_pesanan', 'DESC')
+            ->limit($limit, $offset)
+            ->get()
+            ->result();
+    }
+
+    // ==================================================
+    // DETAIL HEADER PENJUALAN
+    // ==================================================
     public function get_by_id($id_penjualan)
     {
         return $this->db
@@ -44,9 +66,9 @@ class Penjualan_model extends CI_Model
             ->row();
     }
 
-    /**
-     * Ambil detail item penjualan
-     */
+    // ==================================================
+    // DETAIL ITEM PENJUALAN
+    // ==================================================
     public function get_detail($id_penjualan)
     {
         return $this->db
@@ -63,9 +85,9 @@ class Penjualan_model extends CI_Model
             ->result();
     }
 
-    /**
-     * Ambil timeline pesanan
-     */
+    // ==================================================
+    // TIMELINE PESANAN
+    // ==================================================
     public function get_timeline($id_penjualan)
     {
         return $this->db
@@ -76,17 +98,17 @@ class Penjualan_model extends CI_Model
             ->result();
     }
 
-    /**
-     * Hitung total penjualan (dashboard)
-     */
+    // ==================================================
+    // HITUNG TOTAL PENJUALAN (PAGINATION)
+    // ==================================================
     public function count_all()
     {
-        return $this->db->count_all('penjualan');
+        return $this->db->count_all_results('penjualan');
     }
 
-    /**
-     * Hitung total pendapatan (dashboard)
-     */
+    // ==================================================
+    // TOTAL PENDAPATAN (DASHBOARD)
+    // ==================================================
     public function total_pendapatan()
     {
         return $this->db
@@ -96,9 +118,9 @@ class Penjualan_model extends CI_Model
             ->total_harga;
     }
 
-    /**
-     * Hitung pesanan menunggu verifikasi
-     */
+    // ==================================================
+    // HITUNG PESANAN MENUNGGU
+    // ==================================================
     public function count_menunggu()
     {
         return $this->db

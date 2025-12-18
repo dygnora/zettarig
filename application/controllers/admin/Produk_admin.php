@@ -12,8 +12,7 @@ class Produk_admin extends MY_Controller
         $this->load->model([
             'Produk_model',
             'Kategori_model',
-            'Brand_model',
-            'Supplier_model'
+            'Brand_model'
         ]);
 
         $this->load->library(['pagination', 'user_agent', 'upload']);
@@ -21,7 +20,7 @@ class Produk_admin extends MY_Controller
     }
 
     // ==================================================
-    // LIST PRODUK + SEARCH + PAGINATION
+    // LIST PRODUK (pagination + search)
     // ==================================================
     public function index()
     {
@@ -32,25 +31,17 @@ class Produk_admin extends MY_Controller
         $limit   = 10;
         $offset  = ($page > 0 ? ($page - 1) * $limit : 0);
 
-        // ==================================================
-        // HITUNG TOTAL PRODUK
-        // ==================================================
+        // hitung total
         $total = $this->Produk_model->count_all($keyword);
 
-        // ==================================================
-        // KONFIGURASI PAGINATION
-        // ==================================================
-        $config['base_url']             = base_url('admin/produk');
-        $config['total_rows']           = $total;
-        $config['per_page']             = $limit;
-        $config['page_query_string']    = true;
+        // pagination
+        $config['base_url'] = base_url('admin/produk');
+        $config['total_rows'] = $total;
+        $config['per_page'] = $limit;
+        $config['page_query_string'] = true;
         $config['query_string_segment'] = 'page';
-
         $this->pagination->initialize($config);
 
-        // ==================================================
-        // DATA KE VIEW
-        // ==================================================
         $data['title']      = 'Produk';
         $data['produk']     = $this->Produk_model->get_paginated($limit, $offset, $keyword);
         $data['pagination'] = $this->pagination->create_links();
@@ -58,9 +49,6 @@ class Produk_admin extends MY_Controller
         $data['offset']     = $offset;
         $data['content']    = 'admin/produk/index';
 
-        // ==================================================
-        // RENDER VIA TEMPLATE
-        // ==================================================
         $this->load->view('admin/layout/template', $data);
     }
 
@@ -74,7 +62,6 @@ class Produk_admin extends MY_Controller
         $data['title']    = 'Tambah Produk';
         $data['kategori'] = $this->Kategori_model->get_all_active();
         $data['brand']    = $this->Brand_model->get_all_active();
-        $data['supplier'] = $this->Supplier_model->get_all_active();
         $data['content']  = 'admin/produk/create';
 
         $this->load->view('admin/layout/template', $data);
@@ -85,17 +72,16 @@ class Produk_admin extends MY_Controller
     // ==================================================
     public function store()
     {
-        $gambar = $this->upload_gambar();
+        $gambar = $this->_upload_gambar();
 
         $data = [
-            'nama_produk'   => $this->input->post('nama_produk', true),
-            'id_kategori'   => $this->input->post('id_kategori'),
-            'id_brand'      => $this->input->post('id_brand'),
-            'id_supplier'   => $this->input->post('id_supplier'),
-            'harga_jual'    => $this->input->post('harga_jual'),
-            'stok'          => (int) $this->input->post('stok'),
-            'status_aktif'  => 1,
-            'gambar_produk' => $gambar
+            'nama_produk'  => $this->input->post('nama_produk', true),
+            'id_kategori'  => $this->input->post('id_kategori'),
+            'id_brand'     => $this->input->post('id_brand'),
+            'harga_jual'   => $this->input->post('harga_jual'),
+            'stok'         => 0, // stok dari pembelian supplier
+            'status_aktif' => $this->input->post('status_aktif'),
+            'gambar_produk'=> $gambar
         ];
 
         $this->Produk_model->insert($data);
@@ -116,7 +102,6 @@ class Produk_admin extends MY_Controller
         $data['produk']   = $produk;
         $data['kategori'] = $this->Kategori_model->get_all_active();
         $data['brand']    = $this->Brand_model->get_all_active();
-        $data['supplier'] = $this->Supplier_model->get_all_active();
         $data['content']  = 'admin/produk/edit';
 
         $this->load->view('admin/layout/template', $data);
@@ -130,15 +115,14 @@ class Produk_admin extends MY_Controller
         $produk = $this->Produk_model->get_by_id($id);
         if (!$produk) show_404();
 
-        $gambar = $this->upload_gambar();
+        $gambar = $this->_upload_gambar();
 
         $data = [
             'nama_produk' => $this->input->post('nama_produk', true),
             'id_kategori' => $this->input->post('id_kategori'),
             'id_brand'    => $this->input->post('id_brand'),
-            'id_supplier' => $this->input->post('id_supplier'),
             'harga_jual'  => $this->input->post('harga_jual'),
-            'stok'        => (int) $this->input->post('stok')
+            'status_aktif'=> $this->input->post('status_aktif')
         ];
 
         if ($gambar) {
@@ -153,7 +137,7 @@ class Produk_admin extends MY_Controller
     }
 
     // ==================================================
-    // AKTIFKAN / NONAKTIFKAN PRODUK
+    // AKTIF / NONAKTIF
     // ==================================================
     public function aktif($id)
     {
@@ -168,9 +152,9 @@ class Produk_admin extends MY_Controller
     }
 
     // ==================================================
-    // UPLOAD GAMBAR PRODUK (PRIVATE)
+    // UPLOAD GAMBAR (PRIVATE)
     // ==================================================
-    private function upload_gambar()
+    private function _upload_gambar()
     {
         if (empty($_FILES['gambar']['name'])) {
             return null;
@@ -184,12 +168,7 @@ class Produk_admin extends MY_Controller
         $this->upload->initialize($config);
 
         if (!$this->upload->do_upload('gambar')) {
-            $this->session->set_flashdata(
-                'error',
-                $this->upload->display_errors('', '')
-            );
-            redirect($this->agent->referrer());
-            exit;
+            show_error($this->upload->display_errors('', ''));
         }
 
         return $this->upload->data('file_name');

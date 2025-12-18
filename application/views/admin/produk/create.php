@@ -65,17 +65,6 @@
             </select>
           </div>
 
-          <div class="form-group">
-            <label>Supplier</label>
-            <select name="id_supplier" class="form-control">
-              <option value="">-- Tidak ada --</option>
-              <?php foreach ($supplier as $s): ?>
-                <option value="<?= $s->id_supplier; ?>">
-                  <?= htmlspecialchars($s->nama_supplier); ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
 
           <div class="form-group">
             <label>Harga Jual</label>
@@ -86,16 +75,15 @@
           </div>
 
           <!-- ===============================
-               STOK AWAL
+               STOK AWAL (READONLY)
                =============================== -->
           <div class="form-group">
-            <label>Stok Awal</label>
+            <label>Stok (otomatis dari pembelian)</label>
             <input type="number"
-                   name="stok"
                    class="form-control"
                    value="0"
-                   min="0"
-                   required>
+                   readonly>
+            <input type="hidden" name="stok" value="0">
           </div>
 
           <!-- GAMBAR PRODUK -->
@@ -114,10 +102,6 @@
                    id="input-gambar"
                    class="form-control-file"
                    accept=".jpg,.jpeg,.png">
-
-            <small class="text-muted">
-              JPG / PNG • preview muncul otomatis
-            </small>
           </div>
 
           <div class="form-group">

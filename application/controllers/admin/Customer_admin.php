@@ -21,23 +21,34 @@ class Customer_admin extends MY_Controller
         $data = $this->data;
 
         $keyword = $this->input->get('q', true);
-        $page    = (int) $this->input->get('page');
+        $offset  = max((int) $this->input->get('page'), 0);
         $limit   = 10;
-        $offset  = ($page > 0 ? ($page - 1) * $limit : 0);
 
         // ==================================================
         // HITUNG TOTAL CUSTOMER
         // ==================================================
-        $total = $this->Customer_model->count_all($keyword);
+        $total_rows = $this->Customer_model->count_all($keyword);
 
         // ==================================================
-        // KONFIGURASI PAGINATION
+        // KONFIGURASI PAGINATION (ADMINLTE STYLE)
         // ==================================================
         $config['base_url']             = base_url('admin/customer');
-        $config['total_rows']           = $total;
+        $config['total_rows']           = $total_rows;
         $config['per_page']             = $limit;
         $config['page_query_string']    = true;
         $config['query_string_segment'] = 'page';
+        $config['reuse_query_string']   = true;
+
+        $config['full_tag_open']  = '<ul class="pagination pagination-sm m-0 float-right">';
+        $config['full_tag_close'] = '</ul>';
+
+        $config['num_tag_open']   = '<li class="page-item">';
+        $config['num_tag_close']  = '</li>';
+
+        $config['cur_tag_open']   = '<li class="page-item active"><a class="page-link">';
+        $config['cur_tag_close']  = '</a></li>';
+
+        $config['attributes']     = ['class' => 'page-link'];
 
         $this->pagination->initialize($config);
 
@@ -63,10 +74,8 @@ class Customer_admin extends MY_Controller
     public function create()
     {
         $data = $this->data;
-
         $data['title']   = 'Tambah Customer';
         $data['content'] = 'admin/customer/create';
-
         $this->load->view('admin/layout/template', $data);
     }
 
@@ -130,39 +139,29 @@ class Customer_admin extends MY_Controller
     }
 
     // ==================================================
-    // AKTIFKAN CUSTOMER
+    // STATUS & COD
     // ==================================================
     public function aktif($id)
     {
         $this->Customer_model->set_status($id, 1);
-        redirect($this->agent->referrer());
+        redirect($this->agent->referrer() ?: 'admin/customer');
     }
 
-    // ==================================================
-    // NONAKTIFKAN CUSTOMER
-    // ==================================================
     public function nonaktif($id)
     {
         $this->Customer_model->set_status($id, 0);
-        redirect($this->agent->referrer());
+        redirect($this->agent->referrer() ?: 'admin/customer');
     }
 
-    // ==================================================
-    // IZINKAN COD (WHITELIST)
-    // ==================================================
     public function allow_cod($id)
     {
         $this->Customer_model->set_cod_allowed($id, 1);
-        redirect($this->agent->referrer());
+        redirect($this->agent->referrer() ?: 'admin/customer');
     }
 
-    // ==================================================
-    // BLOKIR COD (BLACKLIST)
-    // ==================================================
     public function block_cod($id)
     {
         $this->Customer_model->set_cod_allowed($id, 0);
-        redirect($this->agent->referrer());
+        redirect($this->agent->referrer() ?: 'admin/customer');
     }
-
 }
