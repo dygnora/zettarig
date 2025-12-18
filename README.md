@@ -138,8 +138,9 @@ zettarig
 
 ---
 
-</details>
 ```
+</details>
+
 ## 🧠 Arsitektur & Konsep Penting
 
 ### MY_Controller
