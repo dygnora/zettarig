@@ -127,4 +127,59 @@ class Penjualan_model extends CI_Model
             ->where('status_pesanan', 'dibuat')
             ->count_all_results('penjualan');
     }
+
+    // ==================================================
+    // RIWAYAT PESANAN CUSTOMER (WEB)
+    // ==================================================
+    public function get_by_customer($customer_id)
+    {
+        return $this->db
+            ->select('
+                p.id_penjualan,
+                p.tanggal_pesanan,
+                p.total_harga,
+                p.status_pesanan
+            ')
+            ->from('penjualan p')
+            ->where('p.id_customer', $customer_id)
+            ->order_by('p.tanggal_pesanan', 'DESC')
+            ->get()
+            ->result();
+    }
+
+    // ==================================================
+    // DETAIL PESANAN CUSTOMER (WEB)
+    // ==================================================
+    public function get_detail_by_customer($id_penjualan, $customer_id)
+    {
+        // header pesanan
+        $pesanan = $this->db
+            ->where('id_penjualan', $id_penjualan)
+            ->where('id_customer', $customer_id)
+            ->limit(1)
+            ->get('penjualan')
+            ->row();
+
+        if (!$pesanan) {
+            return null;
+        }
+
+        // detail item
+        $pesanan->items = $this->db
+            ->select('
+                d.qty,
+                d.harga_jual,
+                d.subtotal,
+                pr.nama_produk
+            ')
+            ->from('detail_penjualan d')
+            ->join('produk pr', 'pr.id_produk = d.id_produk')
+            ->where('d.id_penjualan', $id_penjualan)
+            ->get()
+            ->result();
+
+        return $pesanan;
+    }
+
+
 }

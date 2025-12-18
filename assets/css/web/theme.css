@@ -1,0 +1,182 @@
+:root {
+  --bg-main: #1e3a8a;
+  --bg-dark: #0f172a;
+  --pixel-orange: #fb923c;
+  --pixel-blue: #38bdf8;
+  --border-dark: #020617;
+}
+
+/* ======================================================
+   GLOBAL
+====================================================== */
+body {
+  background: linear-gradient(180deg, var(--bg-main), var(--bg-dark));
+  color: #e5e7eb;
+  font-family: system-ui, sans-serif;
+}
+
+.pixel-font {
+  font-family: 'Press Start 2P', monospace;
+}
+
+/* ======================================================
+   CARD (PIXEL STYLE)
+====================================================== */
+.pixel-card {
+  border: 3px solid var(--border-dark);
+  box-shadow: 4px 4px 0 #000;
+}
+
+/* ======================================================
+   GRIDLINE BACKGROUND (RETRO STYLE)
+====================================================== */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ======================================================
+   PIXEL BUTTON (CTA)
+====================================================== */
+.pixel-btn {
+  font-family: 'Press Start 2P', monospace;
+  background: var(--pixel-orange);
+  color: #000;
+  border: 3px solid var(--border-dark);
+  padding: 12px 18px;
+  text-decoration: none;
+  box-shadow: 4px 4px 0 #000;
+  display: inline-block;
+}
+
+.pixel-btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+/* ======================================================
+   PIXEL NAVBAR (FINAL – CENTER FIX)
+====================================================== */
+
+/* NAVBAR CONTAINER */
+.pixel-navbar {
+  position: relative;               /* PENTING untuk absolute center */
+  display: flex;
+  align-items: center;
+  padding: 14px 24px;
+  background: linear-gradient(180deg, #4958ab, #252d69);
+  border-bottom: 4px solid var(--border-dark);
+}
+
+/* BRAND (LEFT) */
+.pixel-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  z-index: 2;                       /* Di atas menu */
+}
+
+.pixel-brand img {
+  width: 40px;
+  height: 40px;
+  background: rgb(25, 21, 40);
+  border-radius: 32px;
+}
+
+/* MENU (TRUE CENTER – TIDAK TERPENGARUH BRAND / USER) */
+.pixel-menu {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1;
+}
+
+/* USER (RIGHT) */
+.pixel-user {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 2;
+}
+
+/* ======================================================
+   TAB BUTTON (MENU ITEM)
+====================================================== */
+.pixel-tab {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  padding: 8px 14px;
+  background: #4f5fbf;
+  border: 3px solid var(--border-dark);
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 3px 3px 0 #000;
+}
+
+/* ACTIVE TAB */
+.pixel-tab.active {
+  background: var(--pixel-orange);
+  color: #000;
+}
+
+/* CTA (LOGIN) */
+.pixel-tab.pixel-cta {
+  background: var(--pixel-orange);
+  color: #000;
+}
+
+/* HOVER EFFECT */
+.pixel-tab:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+/* USER NAME */
+.pixel-user-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #e5e7eb;
+}
+
+/* ======================================================
+   FOOTER
+====================================================== */
+footer {
+  text-align: center;
+  padding: 20px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  background: #020617;
+  margin-top: 40px;
+}
+
+/* ======================================================
+   HERO FULL SCREEN
+====================================================== */
+.hero-full {
+  min-height: calc(100vh - 80px); /* kurangi tinggi navbar */
+  padding: 80px 20px;
+}
+
+/* TITLE */
+.hero-title {
+  font-size: 42px;
+  line-height: 1.4;
+}
+
+/* SUBTITLE */
+.hero-subtitle {
+  max-width: 640px;
+  font-size: 16px;
+  opacity: 0.9;
+}

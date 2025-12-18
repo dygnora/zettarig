@@ -79,10 +79,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <body>
 
 <div id="container">
-	<h1>Welcome to CodeIgniter!</h1>
-
-	<div id="body">
-		<p>ini adalah halaman admin</p>
+	<h1>Hi!</h1>
 </div>
 
 </body>

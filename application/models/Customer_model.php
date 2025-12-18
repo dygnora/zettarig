@@ -86,4 +86,17 @@ class Customer_model extends CI_Model
         return $this->update($id, ['is_cod_allowed' => $status]);
     }
 
+    // ==================================================
+    // ================= WEB AUTH =======================
+    // ==================================================
+
+    // GET CUSTOMER BY EMAIL (LOGIN)
+    public function get_by_email($email)
+    {
+        return $this->db
+            ->where('email', $email)
+            ->limit(1)
+            ->get($this->table)
+            ->row();
+    }
 }
