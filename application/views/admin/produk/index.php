@@ -48,7 +48,7 @@
       </div>
 
       <div class="card-body py-1">
-        <table class="table table-bordered table-hover">
+        <table class="table table-bordered table-hover text-nowrap">
           <thead>
             <tr>
               <th class="text-center" width="50">No</th>

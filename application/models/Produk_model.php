@@ -59,7 +59,7 @@ class Produk_model extends CI_Model
             ->result();
     }
 
-    // GET BY ID (ADMIN)
+    // GET PRODUK BY ID (ADMIN)
     public function get_by_id($id)
     {
         return $this->db
@@ -68,13 +68,13 @@ class Produk_model extends CI_Model
             ->row();
     }
 
-    // INSERT
+    // INSERT PRODUK
     public function insert($data)
     {
         return $this->db->insert($this->table, $data);
     }
 
-    // UPDATE
+    // UPDATE PRODUK
     public function update($id, $data)
     {
         return $this->db
@@ -82,27 +82,47 @@ class Produk_model extends CI_Model
             ->update($this->table, $data);
     }
 
-    // SET STATUS
+    // SET STATUS AKTIF / NONAKTIF
     public function set_status($id, $status)
     {
         return $this->update($id, ['status_aktif' => $status]);
     }
 
-    // UPDATE STOK & MODAL
+    // UPDATE STOK & HARGA MODAL (PEMBELIAN SUPPLIER)
     public function update_stok_dan_modal($id_produk, $qty, $harga_modal)
     {
-        $this->db->set('stok', 'stok + '.$qty, false);
+        $this->db->set('stok', 'stok + ' . (int)$qty, false);
         $this->db->set('harga_modal', $harga_modal);
         $this->db->where('id_produk', $id_produk);
         return $this->db->update($this->table);
     }
 
-    // KURANGI STOK
+    // KURANGI STOK (PENJUALAN)
     public function kurangi_stok($id_produk, $qty)
     {
-        $this->db->set('stok', 'stok - '.$qty, false);
+        $this->db->set('stok', 'stok - ' . (int)$qty, false);
         $this->db->where('id_produk', $id_produk);
         return $this->db->update($this->table);
+    }
+
+    // ==================================================
+    // PENTING: DIPAKAI PEMBELIAN SUPPLIER (ADMIN)
+    // ==================================================
+    public function get_all_aktif()
+    {
+        return $this->db
+            ->select('
+                id_produk,
+                nama_produk,
+                stok,
+                harga_modal,
+                harga_jual
+            ')
+            ->from($this->table)
+            ->where('status_aktif', 1)
+            ->order_by('nama_produk', 'ASC')
+            ->get()
+            ->result();
     }
 
     // ==================================================
@@ -132,7 +152,7 @@ class Produk_model extends CI_Model
         return $this->db->count_all_results();
     }
 
-    // LIST PRODUK AKTIF + SEARCH + FILTER + PAGINATION (WEB)
+    // LIST PRODUK AKTIF + PAGINATION (WEB)
     public function get_active_products_paginated($limit, $offset, $keyword = null, $kategori_id = null)
     {
         $this->db->select('
@@ -168,7 +188,7 @@ class Produk_model extends CI_Model
             ->result();
     }
 
-    // DETAIL PRODUK BERDASARKAN SLUG (WEB)
+    // DETAIL PRODUK AKTIF BERDASARKAN SLUG (WEB)
     public function get_active_by_slug($slug)
     {
         return $this->db
@@ -181,5 +201,13 @@ class Produk_model extends CI_Model
             ->limit(1)
             ->get()
             ->row();
+    }
+
+    // ==================================================
+    // WRAPPER UNTUK CART (WAJIB ADA)
+    // ==================================================
+    public function get_by_slug($slug)
+    {
+        return $this->get_active_by_slug($slug);
     }
 }

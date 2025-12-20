@@ -1,13 +1,10 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 
-<!-- ==================================================
-     HEADER
-     ================================================== -->
 <section class="content-header">
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1>Penjualan</h1>
+        <h1>Data Penjualan</h1>
       </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
@@ -21,9 +18,6 @@
   </div>
 </section>
 
-<!-- ==================================================
-     CONTENT
-     ================================================== -->
 <section class="content">
   <div class="container-fluid">
 
@@ -33,7 +27,6 @@
         <h3 class="card-title">Daftar Penjualan</h3>
       </div>
 
-      <!-- BODY TABEL -->
       <div class="card-body py-1">
         <table class="table table-bordered table-hover mb-0">
           <thead>
@@ -43,7 +36,7 @@
               <th>Customer</th>
               <th>Total</th>
               <th>Pembayaran</th>
-              <th>Status</th>
+              <th class="text-center">Status</th>
               <th width="120" class="text-center">Aksi</th>
             </tr>
           </thead>
@@ -71,16 +64,50 @@
                     <?= strtoupper($p->metode_pembayaran); ?>
                   </td>
 
-                  <td>
-                    <span class="badge badge-info">
-                      <?= ucfirst($p->status_pesanan); ?>
-                    </span>
+                  <td class="text-center">
+                    <?php
+                      switch ($p->status_pesanan) {
+                        // 1. TAHAP PEMBAYARAN (KUNING)
+                        case 'dibuat':
+                        case 'menunggu_pembayaran':
+                            echo '<span class="badge badge-warning">Menunggu Bayar</span>';
+                            break;
+
+                        // 2. TAHAP VERIFIKASI (BIRU MUDA / INFO)
+                        case 'menunggu_verifikasi':
+                            echo '<span class="badge badge-info">Verifikasi</span>';
+                            break;
+
+                        // 3. DIPROSES (BIRU TUA / PRIMARY)
+                        case 'diproses':
+                            echo '<span class="badge badge-primary">Diproses</span>';
+                            break;
+                        
+                        // 4. DIKIRIM (UNGU / INDIGO - Bawaan AdminLTE)
+                        case 'dikirim':
+                            echo '<span class="badge bg-purple">Dikirim</span>';
+                            break;
+
+                        // 5. SELESAI (HIJAU / SUCCESS)
+                        case 'selesai':
+                            echo '<span class="badge badge-success">Selesai</span>';
+                            break;
+
+                        // 6. BATAL (MERAH / DANGER)
+                        case 'dibatalkan':
+                            echo '<span class="badge badge-danger">Batal</span>';
+                            break;
+
+                        default:
+                            echo '<span class="badge badge-secondary">' . ucfirst($p->status_pesanan) . '</span>';
+                      }
+                    ?>
                   </td>
 
                   <td class="text-center">
                     <a href="<?= base_url('admin/penjualan/detail/'.$p->id_penjualan); ?>"
                        class="btn btn-info btn-sm">
-                      <i class="fas fa-eye"></i>
+                      <i class="fas fa-eye"></i> Detail
                     </a>
                   </td>
                 </tr>
@@ -96,9 +123,6 @@
         </table>
       </div>
 
-      <!-- ==================================================
-           PAGINATION
-           ================================================== -->
       <div class="card-footer clearfix">
         <?= $pagination ?? ''; ?>
       </div>

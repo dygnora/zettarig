@@ -9,13 +9,16 @@ class Pembayaran_admin extends MY_Controller
     {
         parent::__construct();
 
-        $this->load->model('Pembayaran_model', 'pembayaran_model');
+        // Load Model Pembayaran (Pastikan file modelnya ada di bawah)
+        $this->load->model('Pembayaran_model');
+        
+        // Load library pendukung
         $this->load->library(['pagination', 'user_agent']);
         $this->load->helper(['url']);
     }
 
     // ==================================================
-    // LIST PEMBAYARAN TRANSFER + PAGINATION
+    // LIST PEMBAYARAN TRANSFER (ADMIN)
     // ==================================================
     public function index()
     {
@@ -24,14 +27,10 @@ class Pembayaran_admin extends MY_Controller
         $offset = max((int) $this->input->get('page'), 0);
         $limit  = 10;
 
-        // ==================================================
-        // HITUNG TOTAL DATA
-        // ==================================================
-        $total_rows = $this->pembayaran_model->count_all();
+        // Hitung total data
+        $total_rows = $this->Pembayaran_model->count_all();
 
-        // ==================================================
-        // KONFIGURASI PAGINATION (ADMINLTE STYLE)
-        // ==================================================
+        // Konfigurasi Pagination
         $config['base_url']             = base_url('admin/pembayaran');
         $config['total_rows']           = $total_rows;
         $config['per_page']             = $limit;
@@ -41,42 +40,36 @@ class Pembayaran_admin extends MY_Controller
 
         $config['full_tag_open']  = '<ul class="pagination pagination-sm m-0 float-right">';
         $config['full_tag_close'] = '</ul>';
-
         $config['num_tag_open']   = '<li class="page-item">';
         $config['num_tag_close']  = '</li>';
-
         $config['cur_tag_open']   = '<li class="page-item active"><a class="page-link">';
         $config['cur_tag_close']  = '</a></li>';
-
         $config['attributes']     = ['class' => 'page-link'];
 
         $this->pagination->initialize($config);
 
-        // ==================================================
-        // DATA KE VIEW
-        // ==================================================
         $data['title']      = 'Pembayaran Transfer';
-        $data['pembayaran'] = $this->pembayaran_model
-                                    ->get_paginated($limit, $offset);
+        $data['pembayaran'] = $this->Pembayaran_model->get_paginated($limit, $offset);
         $data['pagination'] = $this->pagination->create_links();
         $data['offset']     = $offset;
         $data['content']    = 'admin/pembayaran/index';
 
-        // ==================================================
-        // RENDER VIA TEMPLATE
-        // ==================================================
         $this->load->view('admin/layout/template', $data);
     }
 
     // ==================================================
-    // DETAIL PEMBAYARAN TRANSFER
+    // DETAIL PEMBAYARAN
     // ==================================================
     public function detail($id)
     {
         $data = $this->data;
 
-        $pembayaran = $this->pembayaran_model->get_by_id($id);
-        if (!$pembayaran) show_404();
+        $pembayaran = $this->Pembayaran_model->get_by_id($id);
+
+        if (!$pembayaran) {
+            show_404();
+            return;
+        }
 
         $data['title']      = 'Detail Pembayaran Transfer';
         $data['pembayaran'] = $pembayaran;
@@ -86,15 +79,30 @@ class Pembayaran_admin extends MY_Controller
     }
 
     // ==================================================
-    // VERIFIKASI PEMBAYARAN
+    // AKSI VERIFIKASI (TRIGGER PERUBAHAN STATUS)
     // ==================================================
-    public function verifikasi($id, $status)
+    public function verifikasi($id_pembayaran, $status)
     {
+        // 1. Validasi Input Status
         if (!in_array($status, ['diterima', 'ditolak'])) {
             show_error('Status tidak valid');
+            return;
         }
 
-        $this->pembayaran_model->verifikasi($id, $status);
+        // 2. Ambil Data Pembayaran Dulu (Untuk tahu ID Penjualan)
+        $pembayaran = $this->Pembayaran_model->get_by_id($id_pembayaran);
+        if (!$pembayaran) show_404();
+
+        // 3. Panggil Model untuk Update (Logika update 3 tabel ada di sini)
+        $this->Pembayaran_model->proses_verifikasi($id_pembayaran, $pembayaran->id_penjualan, $status);
+
+        // 4. Feedback ke Admin
+        if ($status == 'diterima') {
+            $this->session->set_flashdata('success', 'Pembayaran DITERIMA. Status pesanan berubah menjadi DIPROSES.');
+        } else {
+            $this->session->set_flashdata('success', 'Pembayaran DITOLAK. Customer diminta upload ulang.');
+        }
+
         redirect('admin/pembayaran');
     }
 }

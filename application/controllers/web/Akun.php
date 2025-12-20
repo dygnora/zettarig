@@ -11,22 +11,21 @@ class Akun extends CI_Controller
         $this->load->library('session');
         $this->load->helper('url');
 
-        // proteksi login
-        if (!$this->session->userdata('customer_login')) {
+        if (!$this->session->userdata('customer_logged_in')) {
             redirect('auth/login');
+            exit;
         }
     }
 
-    // ==================================================
-    // DASHBOARD CUSTOMER
-    // ==================================================
     public function index()
     {
         $customer_id = $this->session->userdata('customer_id');
         $customer    = $this->Customer_model->get_by_id($customer_id);
 
         if (!$customer) {
-            redirect('auth/logout');
+            // Jika user dihapus dari DB, logout paksa
+            $this->logout(); 
+            return;
         }
 
         $data['title']    = 'Akun Saya | Zettarig';
@@ -36,52 +35,37 @@ class Akun extends CI_Controller
         $this->load->view('web/layout/template', $data);
     }
 
-    // ==================================================
-    // LOGOUT CUSTOMER
-    // ==================================================
-    public function logout()
-    {
-        $this->session->unset_userdata([
-            'customer_id',
-            'customer_nama',
-            'customer_login'
-        ]);
-
-        redirect('produk');
-    }
-
-    // ==================================================
-    // RIWAYAT PESANAN CUSTOMER
-    // ==================================================
     public function pesanan()
     {
-        $customer_id = $this->session->userdata('customer_id');
-
         $this->load->model('Penjualan_model');
 
-        $data['title']    = 'Riwayat Pesanan | Zettarig';
-        $data['pesanan']  = $this->Penjualan_model->get_by_customer($customer_id);
-        $data['content']  = 'web/akun/pesanan';
+        $data['title']   = 'Riwayat Pesanan | Zettarig';
+        $data['pesanan'] = $this->Penjualan_model
+            ->get_by_customer($this->session->userdata('customer_id'));
+        $data['content'] = 'web/akun/pesanan';
 
         $this->load->view('web/layout/template', $data);
     }
 
-    // ==================================================
-    // DETAIL PESANAN CUSTOMER
-    // ==================================================
     public function pesanan_detail($id_penjualan)
     {
-        $customer_id = $this->session->userdata('customer_id');
-
         $this->load->model('Penjualan_model');
 
-        // ambil pesanan (validasi kepemilikan)
         $pesanan = $this->Penjualan_model
-            ->get_detail_by_customer($id_penjualan, $customer_id);
+            ->get_detail_by_customer(
+                $id_penjualan,
+                $this->session->userdata('customer_id')
+            );
 
         if (!$pesanan) {
             show_404();
+            return;
         }
+
+        // ==================================================
+        // LOAD TIMELINE (PENTING UNTUK CEK ALASAN TOLAK)
+        // ==================================================
+        $data['timeline'] = $this->Penjualan_model->get_timeline($id_penjualan);
 
         $data['title']   = 'Detail Pesanan | Zettarig';
         $data['pesanan'] = $pesanan;
@@ -90,5 +74,18 @@ class Akun extends CI_Controller
         $this->load->view('web/layout/template', $data);
     }
 
-
+    // ==================================================
+    // LOGOUT
+    // ==================================================
+    public function logout()
+    {
+        $this->session->unset_userdata([
+            'customer_logged_in', 
+            'customer_id', 
+            'customer_nama', 
+            'customer_email'
+        ]);
+        
+        redirect('auth/login');
+    }
 }

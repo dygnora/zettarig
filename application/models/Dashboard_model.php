@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Dashboard_model extends CI_Model
 {
     // ==================================================
-    // COUNT DATA (INFO BOX)
+    // COUNT DATA (INFO BOX DASHBOARD)
     // ==================================================
     public function count_produk()
     {
@@ -29,7 +29,7 @@ class Dashboard_model extends CI_Model
     }
 
     // ==================================================
-    // PRODUK STOK MENIPIS
+    // PRODUK STOK MENIPIS (DETAIL)
     // ==================================================
     public function get_produk_stok_menipis($batas = 5)
     {
@@ -44,8 +44,7 @@ class Dashboard_model extends CI_Model
     }
 
     // ==================================================
-    // GRAFIK BULANAN
-    // PENDAPATAN vs PEMBELIAN (DATA REAL)
+    // GRAFIK BULANAN (PENDAPATAN vs PEMBELIAN)
     // ==================================================
     public function get_pendapatan_vs_pembelian_bulanan()
     {
@@ -56,9 +55,7 @@ class Dashboard_model extends CI_Model
                 SUM(total_pendapatan) AS total_pendapatan,
                 SUM(total_pembelian)  AS total_pembelian
             FROM (
-                -- =========================================
                 -- PENDAPATAN (PENJUALAN SELESAI)
-                -- =========================================
                 SELECT
                     YEAR(p.tanggal_pesanan)  AS tahun,
                     MONTH(p.tanggal_pesanan) AS bulan_angka,
@@ -70,9 +67,7 @@ class Dashboard_model extends CI_Model
 
                 UNION ALL
 
-                -- =========================================
-                -- PEMBELIAN (DETAIL PEMBELIAN SUPPLIER)
-                -- =========================================
+                -- PEMBELIAN (DARI SUPPLIER)
                 SELECT
                     YEAR(ps.tanggal_pembelian)  AS tahun,
                     MONTH(ps.tanggal_pembelian) AS bulan_angka,
@@ -91,7 +86,7 @@ class Dashboard_model extends CI_Model
     }
 
     // ==================================================
-    // TOTAL UANG (SUMMARY)
+    // TOTAL REVENUE & COST (SUMMARY)
     // ==================================================
     public function get_total_revenue()
     {
@@ -117,7 +112,7 @@ class Dashboard_model extends CI_Model
     }
 
     // ==================================================
-    // PESANAN TERBARU (DASHBOARD)
+    // PESANAN TERBARU (LIST DI DASHBOARD UTAMA)
     // ==================================================
     public function get_latest_orders($limit = 5)
     {
@@ -138,30 +133,32 @@ class Dashboard_model extends CI_Model
     }
 
     // ==================================================
-    // NOTIFIKASI PESANAN BARU
+    // [UPDATED] NOTIFIKASI NAVBAR: HITUNG JUMLAH
     // ==================================================
     public function count_pesanan_baru()
     {
         return $this->db
-            ->where('status_pesanan', 'dibuat')
+            ->where_in('status_pesanan', ['dibuat', 'menunggu_verifikasi'])
             ->count_all_results('penjualan');
     }
 
     // ==================================================
-    // LIST PESANAN BARU (DROPDOWN NOTIFIKASI)
+    // [UPDATED] NOTIFIKASI NAVBAR: LIST DATA
     // ==================================================
     public function get_pesanan_baru($limit = 5)
     {
+        // Perbaikan: Hapus komentar di dalam string select
         return $this->db
             ->select('
                 p.id_penjualan,
                 p.tanggal_pesanan,
                 p.total_harga,
+                p.status_pesanan,
                 c.nama AS nama_customer
             ')
             ->from('penjualan p')
             ->join('customer c', 'c.id_customer = p.id_customer')
-            ->where('p.status_pesanan', 'dibuat')
+            ->where_in('p.status_pesanan', ['dibuat', 'menunggu_verifikasi'])
             ->order_by('p.tanggal_pesanan', 'DESC')
             ->limit($limit)
             ->get()

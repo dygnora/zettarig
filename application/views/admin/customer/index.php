@@ -54,7 +54,7 @@
 
       <!-- 🔧 BODY DISESUAIKAN DENGAN TEMPLATE -->
       <div class="card-body py-1">
-        <table class="table table-bordered table-hover">
+        <table class="table table-bordered table-hover text-nowrap">
           <thead>
             <tr>
               <th width="50">No</th>

@@ -42,7 +42,7 @@
         </div>
         <div class="card-body text-center">
           <?php if ($pembayaran->bukti_transfer): ?>
-            <img src="<?= base_url('uploads/bukti_transfer/'.$pembayaran->bukti_transfer); ?>"
+            <img src="<?= base_url('assets/uploads/bukti_transfer/'.$pembayaran->bukti_transfer); ?>"
                  class="img-fluid"
                  style="max-height:400px;">
           <?php else: ?>

@@ -76,11 +76,20 @@ class Auth_admin extends MY_Controller
     }
 
     // ==================================================
-    // LOGOUT ADMIN
+    // LOGOUT ADMIN (FIXED: UNSET USERDATA ONLY)
     // ==================================================
     public function logout()
     {
-        $this->session->sess_destroy();
+        // Hapus hanya data spesifik admin, customer (jika ada) aman
+        $this->session->unset_userdata([
+            'admin_logged_in', 
+            'admin_id', 
+            'admin_username', 
+            'admin_nama', 
+            'admin_email'
+        ]);
+        
+        $this->session->set_flashdata('success', 'Admin berhasil logout.');
         redirect('admin/auth/login');
         exit;
     }

@@ -15,6 +15,7 @@ class Produk_admin extends MY_Controller
             'Brand_model'
         ]);
 
+        // Helper 'url' WAJIB ada untuk generate slug
         $this->load->library(['pagination', 'user_agent', 'upload']);
         $this->load->helper(['url', 'text']);
     }
@@ -30,14 +31,9 @@ class Produk_admin extends MY_Controller
         $offset  = max((int) $this->input->get('page'), 0);
         $limit   = 10;
 
-        // ==================================================
-        // HITUNG TOTAL PRODUK
-        // ==================================================
         $total_rows = $this->Produk_model->count_all($keyword);
 
-        // ==================================================
-        // KONFIGURASI PAGINATION (ADMINLTE STYLE)
-        // ==================================================
+        // Config Pagination
         $config['base_url']             = base_url('admin/produk');
         $config['total_rows']           = $total_rows;
         $config['per_page']             = $limit;
@@ -47,41 +43,30 @@ class Produk_admin extends MY_Controller
 
         $config['full_tag_open']  = '<ul class="pagination pagination-sm m-0 float-right">';
         $config['full_tag_close'] = '</ul>';
-
         $config['num_tag_open']   = '<li class="page-item">';
         $config['num_tag_close']  = '</li>';
-
         $config['cur_tag_open']   = '<li class="page-item active"><a class="page-link">';
         $config['cur_tag_close']  = '</a></li>';
-
         $config['attributes']     = ['class' => 'page-link'];
 
         $this->pagination->initialize($config);
 
-        // ==================================================
-        // DATA KE VIEW
-        // ==================================================
         $data['title']      = 'Produk';
-        $data['produk']     = $this->Produk_model
-                                    ->get_paginated($limit, $offset, $keyword);
+        $data['produk']     = $this->Produk_model->get_paginated($limit, $offset, $keyword);
         $data['pagination'] = $this->pagination->create_links();
         $data['keyword']    = $keyword;
         $data['offset']     = $offset;
         $data['content']    = 'admin/produk/index';
 
-        // ==================================================
-        // RENDER VIA TEMPLATE
-        // ==================================================
         $this->load->view('admin/layout/template', $data);
     }
 
     // ==================================================
-    // FORM TAMBAH PRODUK
+    // FORM TAMBAH
     // ==================================================
     public function create()
     {
         $data = $this->data;
-
         $data['title']    = 'Tambah Produk';
         $data['kategori'] = $this->Kategori_model->get_all_active();
         $data['brand']    = $this->Brand_model->get_all_active();
@@ -91,33 +76,45 @@ class Produk_admin extends MY_Controller
     }
 
     // ==================================================
-    // SIMPAN PRODUK BARU
+    // STORE (SIMPAN DATA)
     // ==================================================
     public function store()
     {
         $gambar = $this->_upload_gambar();
+        $nama_produk = $this->input->post('nama_produk', true);
+        
+        // 1. GENERATE SLUG (Sesuai nama kolom DB: slug_produk)
+        $slug = url_title($nama_produk, 'dash', true);
 
         $data = [
-            'nama_produk'   => $this->input->post('nama_produk', true),
+            'nama_produk'   => $nama_produk,
+            'slug_produk'   => $slug,  // <--- FIXED: Sesuai DB Referensi.txt
             'id_kategori'   => $this->input->post('id_kategori'),
             'id_brand'      => $this->input->post('id_brand'),
+            'deskripsi'     => $this->input->post('deskripsi'),
+            'harga_modal'   => $this->input->post('harga_modal'),
             'harga_jual'    => $this->input->post('harga_jual'),
-            'stok'          => 0, // stok dari pembelian supplier
+            'stok'          => 0, 
             'status_aktif'  => $this->input->post('status_aktif'),
             'gambar_produk' => $gambar
+            // 'berat_gram' DIHAPUS karena tidak ada di DB Referensi.txt
         ];
 
-        $this->Produk_model->insert($data);
+        if ($this->Produk_model->insert($data)) {
+            $this->session->set_flashdata('success', 'Produk berhasil ditambahkan');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal menambahkan produk');
+        }
+        
         redirect('admin/produk');
     }
 
     // ==================================================
-    // FORM EDIT PRODUK
+    // EDIT
     // ==================================================
     public function edit($id)
     {
         $data = $this->data;
-
         $produk = $this->Produk_model->get_by_id($id);
         if (!$produk) show_404();
 
@@ -131,7 +128,7 @@ class Produk_admin extends MY_Controller
     }
 
     // ==================================================
-    // UPDATE PRODUK
+    // UPDATE
     // ==================================================
     public function update($id)
     {
@@ -139,13 +136,21 @@ class Produk_admin extends MY_Controller
         if (!$produk) show_404();
 
         $gambar = $this->_upload_gambar();
+        $nama_produk = $this->input->post('nama_produk', true);
+        
+        // Regenerate slug jika nama berubah
+        $slug = url_title($nama_produk, 'dash', true);
 
         $data = [
-            'nama_produk'  => $this->input->post('nama_produk', true),
-            'id_kategori'  => $this->input->post('id_kategori'),
-            'id_brand'     => $this->input->post('id_brand'),
-            'harga_jual'   => $this->input->post('harga_jual'),
-            'status_aktif' => $this->input->post('status_aktif')
+            'nama_produk'   => $nama_produk,
+            'slug_produk'   => $slug, // <--- FIXED
+            'id_kategori'   => $this->input->post('id_kategori'),
+            'id_brand'      => $this->input->post('id_brand'),
+            'deskripsi'     => $this->input->post('deskripsi'),
+            'harga_modal'   => $this->input->post('harga_modal'),
+            'harga_jual'    => $this->input->post('harga_jual'),
+            'status_aktif'  => $this->input->post('status_aktif')
+            // 'berat_gram' DIHAPUS
         ];
 
         if ($gambar) {
@@ -156,11 +161,12 @@ class Produk_admin extends MY_Controller
         }
 
         $this->Produk_model->update($id, $data);
+        $this->session->set_flashdata('success', 'Produk berhasil diperbarui');
         redirect('admin/produk');
     }
 
     // ==================================================
-    // AKTIF / NONAKTIF PRODUK
+    // AKTIF / NONAKTIF
     // ==================================================
     public function aktif($id)
     {
@@ -175,7 +181,7 @@ class Produk_admin extends MY_Controller
     }
 
     // ==================================================
-    // UPLOAD GAMBAR PRODUK
+    // UPLOAD GAMBAR
     // ==================================================
     private function _upload_gambar()
     {
@@ -196,7 +202,9 @@ class Produk_admin extends MY_Controller
         $this->upload->initialize($config, true);
 
         if (!$this->upload->do_upload('gambar')) {
-            show_error($this->upload->display_errors('', ''));
+            // Tampilkan error jika upload gagal tapi jangan stop proses
+            $this->session->set_flashdata('error', $this->upload->display_errors('', ''));
+            return null;
         }
 
         return $this->upload->data('file_name');

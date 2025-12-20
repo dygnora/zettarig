@@ -72,7 +72,7 @@
                     Rp <?= number_format($c->dp_dibayar, 0, ',', '.'); ?>
                   </td>
 
-                  <td>
+                  <td class="text-center">
                     <?php if ($c->status_dp === 'menunggu'): ?>
                       <span class="badge badge-warning">Menunggu</span>
                     <?php elseif ($c->status_dp === 'diterima'): ?>
@@ -82,7 +82,7 @@
                     <?php endif; ?>
                   </td>
 
-                  <td>
+                  <td class="text-center">
                     <?php if ($c->status_pelunasan === 'lunas'): ?>
                       <span class="badge badge-success">Lunas</span>
                     <?php else: ?>

@@ -41,17 +41,26 @@ $current = uri_string();
   <!-- USER -->
   <div class="pixel-user">
     <?php if (!$is_login): ?>
+
       <a href="<?= base_url('auth/login'); ?>" class="pixel-tab pixel-cta">
         LOGIN
       </a>
+
     <?php else: ?>
-      <span class="pixel-user-name">
+
+      <!-- NAMA USER = LINK KE HALAMAN AKUN -->
+      <a href="<?= base_url('akun'); ?>"
+        class="pixel-tab pixel-user-name <?= strpos($current, 'akun') === 0 ? 'active' : ''; ?>">
         <?= htmlspecialchars($customer_name); ?>
-      </span>
+      </a>
+
+      <!-- LOGOUT -->
       <a href="<?= base_url('auth/logout'); ?>" class="pixel-tab">
         LOGOUT
       </a>
+
     <?php endif; ?>
   </div>
+
 
 </div>
