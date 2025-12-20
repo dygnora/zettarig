@@ -91,7 +91,7 @@
                 </div>
                 <div class="card-body text-center">
                     <?php if ($cod->bukti_dp): ?>
-                        <img src="<?= base_url('uploads/bukti_dp/'.$cod->bukti_dp); ?>" class="img-fluid border rounded mb-3 shadow-sm" style="max-height: 400px;">
+                        <img src="<?= base_url('assets/uploads/bukti_dp/'.$cod->bukti_dp); ?>" class="img-fluid border rounded mb-3 shadow-sm" style="max-height: 400px;">
                         
                         <?php if ($cod->status_dp === 'menunggu'): ?>
                             <hr>
