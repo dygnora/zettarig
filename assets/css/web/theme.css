@@ -1,9 +1,21 @@
+/* 1. IMPORT FONT (Wajib agar 'Press Start 2P' jalan) */
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap');
+
 :root {
   --bg-main: #1e3a8a;
   --bg-dark: #0f172a;
   --pixel-orange: #fb923c;
   --pixel-blue: #38bdf8;
   --border-dark: #020617;
+  --text-light: #e5e7eb;
+}
+
+/* ======================================================
+   RESET BOOTSTRAP (PENTING UNTUK GAYA PIXEL)
+   Bootstrap suka membulatkan sudut, kita harus bikin tajam.
+====================================================== */
+.card, .btn, .form-control, .alert, .badge, .img-thumbnail {
+  border-radius: 0 !important; /* Memastikan sudut kotak tajam */
 }
 
 /* ======================================================
@@ -11,20 +23,31 @@
 ====================================================== */
 body {
   background: linear-gradient(180deg, var(--bg-main), var(--bg-dark));
-  color: #e5e7eb;
-  font-family: system-ui, sans-serif;
+  color: var(--text-light);
+  font-family: 'VT323', monospace; /* Font isi artikel agar mudah dibaca */
+  font-size: 1.2rem;
+  min-height: 100vh;
 }
 
-.pixel-font {
+/* Judul & Headings pakai font Pixel tebal */
+h1, h2, h3, h4, h5, h6, .pixel-font {
   font-family: 'Press Start 2P', monospace;
+  line-height: 1.5;
 }
 
 /* ======================================================
    CARD (PIXEL STYLE)
 ====================================================== */
 .pixel-card {
-  border: 3px solid var(--border-dark);
-  box-shadow: 4px 4px 0 #000;
+  background-color: var(--bg-dark); /* Default background gelap */
+  border: 4px solid var(--border-dark);
+  box-shadow: 6px 6px 0 #000;
+  transition: transform 0.2s;
+}
+
+.pixel-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 #000;
 }
 
 /* ======================================================
@@ -32,8 +55,8 @@ body {
 ====================================================== */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
@@ -42,6 +65,7 @@ body {
 ====================================================== */
 .pixel-btn {
   font-family: 'Press Start 2P', monospace;
+  font-size: 0.8rem; /* Ukuran font disesuaikan */
   background: var(--pixel-orange);
   color: #000;
   border: 3px solid var(--border-dark);
@@ -49,25 +73,35 @@ body {
   text-decoration: none;
   box-shadow: 4px 4px 0 #000;
   display: inline-block;
+  cursor: pointer;
+  transition: all 0.1s;
 }
 
 .pixel-btn:hover {
   transform: translate(2px, 2px);
   box-shadow: 2px 2px 0 #000;
+  color: #000;
+}
+
+.pixel-btn.disabled {
+  background: #64748b;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 4px 4px 0 #000;
 }
 
 /* ======================================================
    PIXEL NAVBAR (FINAL – CENTER FIX)
 ====================================================== */
-
 /* NAVBAR CONTAINER */
 .pixel-navbar {
-  position: relative;               /* PENTING untuk absolute center */
+  position: relative;
   display: flex;
   align-items: center;
   padding: 14px 24px;
   background: linear-gradient(180deg, #4958ab, #252d69);
   border-bottom: 4px solid var(--border-dark);
+  z-index: 1000; /* Agar selalu di atas */
 }
 
 /* BRAND (LEFT) */
@@ -79,7 +113,7 @@ body {
   color: #fff;
   font-family: 'Press Start 2P', monospace;
   font-size: 14px;
-  z-index: 2;                       /* Di atas menu */
+  z-index: 2;
 }
 
 .pixel-brand img {
@@ -87,9 +121,10 @@ body {
   height: 40px;
   background: rgb(25, 21, 40);
   border-radius: 32px;
+  border: 2px solid white;
 }
 
-/* MENU (TRUE CENTER – TIDAK TERPENGARUH BRAND / USER) */
+/* MENU (TRUE CENTER) */
 .pixel-menu {
   position: absolute;
   left: 50%;
@@ -115,28 +150,19 @@ body {
 .pixel-tab {
   font-family: 'Press Start 2P', monospace;
   font-size: 10px;
-  padding: 8px 14px;
+  padding: 10px 14px;
   background: #4f5fbf;
   border: 3px solid var(--border-dark);
   color: #fff;
   text-decoration: none;
   box-shadow: 3px 3px 0 #000;
+  transition: all 0.1s;
 }
 
 /* ACTIVE TAB */
-.pixel-tab.active {
+.pixel-tab.active, .pixel-tab:hover {
   background: var(--pixel-orange);
   color: #000;
-}
-
-/* CTA (LOGIN) */
-.pixel-tab.pixel-cta {
-  background: var(--pixel-orange);
-  color: #000;
-}
-
-/* HOVER EFFECT */
-.pixel-tab:hover {
   transform: translate(1px, 1px);
   box-shadow: 2px 2px 0 #000;
 }
@@ -149,34 +175,93 @@ body {
 }
 
 /* ======================================================
+   HERO FULL SCREEN
+====================================================== */
+.hero-full {
+  padding: 80px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 32px; /* Disesuaikan untuk mobile dulu */
+  line-height: 1.6;
+  text-shadow: 4px 4px 0px #000;
+  margin-bottom: 20px;
+}
+
+/* ======================================================
    FOOTER
 ====================================================== */
 footer {
   text-align: center;
-  padding: 20px;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
+  padding: 40px 20px;
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
   background: #020617;
-  margin-top: 40px;
+  border-top: 4px solid var(--pixel-blue);
+  margin-top: auto; /* Agar footer selalu di bawah */
 }
 
 /* ======================================================
-   HERO FULL SCREEN
+   RESPONSIVE (MOBILE FIX)
+   Ini bagian penting agar tampilan tidak hancur di HP
 ====================================================== */
-.hero-full {
-  min-height: calc(100vh - 80px); /* kurangi tinggi navbar */
-  padding: 80px 20px;
+@media (max-width: 992px) {
+  .pixel-navbar {
+    flex-wrap: wrap; /* Izinkan elemen turun ke bawah */
+    justify-content: space-between;
+    padding: 10px 15px;
+  }
+
+  .pixel-menu {
+    position: static; /* Matikan absolute positioning */
+    transform: none;
+    order: 3; /* Pindah ke baris paling bawah */
+    width: 100%;
+    margin-top: 15px;
+    justify-content: center;
+    flex-wrap: wrap; /* Menu boleh turun baris kalau kepanjangan */
+  }
+
+  .hero-title {
+    font-size: 24px; /* Kecilkan font judul di HP */
+  }
 }
 
-/* TITLE */
-.hero-title {
-  font-size: 42px;
-  line-height: 1.4;
+/* ======================================================
+   ADDITIONAL ANIMATION
+====================================================== */
+
+/* Animasi Melayang untuk Hero Image */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
 }
 
-/* SUBTITLE */
-.hero-subtitle {
-  max-width: 640px;
-  font-size: 16px;
-  opacity: 0.9;
+.floating-anim {
+    animation: float 4s ease-in-out infinite;
+}
+
+/* Hover Effect untuk Category Card */
+.hover-up {
+    transition: transform 0.2s, background-color 0.2s;
+}
+.hover-up:hover {
+    transform: translateY(-5px);
+    background-color: #1e293b !important; /* lighten bg on hover */
+    border-color: var(--pixel-blue);
+}
+
+/* Accordion Custom (Hilangkan panah default bootstrap) */
+.accordion-button::after {
+    display: none;
+}
+.accordion-button:not(.collapsed) {
+    background-color: transparent;
+    color: var(--pixel-orange);
+    box-shadow: none;
 }
