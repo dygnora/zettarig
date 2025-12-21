@@ -19,19 +19,18 @@
 <section class="content">
   <div class="container-fluid">
 
-    <!-- ACTION BAR -->
-    <div class="mb-3 d-flex justify-content-between">
-      <a href="<?= base_url('admin/produk/create'); ?>" class="btn btn-primary btn-sm">
-        <i class="fas fa-plus"></i> Tambah Produk
+    <div class="d-flex justify-content-between mb-3">
+      <a href="<?= base_url('admin/produk/create'); ?>" class="btn btn-primary">
+        <i class="fas fa-plus mr-1"></i> Tambah Produk
       </a>
 
       <form method="get" action="<?= base_url('admin/produk'); ?>">
-        <div class="input-group input-group-sm" style="width:260px;">
-          <input type="text"
-                 name="q"
-                 class="form-control"
-                 placeholder="Cari produk..."
-                 value="<?= htmlspecialchars($keyword ?? '', ENT_QUOTES); ?>">
+        <div class="input-group" style="width: 250px;">
+          <input type="text" 
+                 name="q" 
+                 class="form-control" 
+                 placeholder="Cari produk..." 
+                 value="<?= htmlspecialchars($this->input->get('q') ?? '', ENT_QUOTES); ?>">
           <div class="input-group-append">
             <button type="submit" class="btn btn-default">
               <i class="fas fa-search"></i>
@@ -41,118 +40,117 @@
       </form>
     </div>
 
-    <!-- TABLE -->
-    <div class="card">
+    <div class="card card-dark">
+      
       <div class="card-header">
         <h3 class="card-title">Daftar Produk</h3>
       </div>
 
-      <div class="card-body py-1">
-        <table class="table table-bordered table-hover text-nowrap">
+      <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap table-striped">
           <thead>
             <tr>
-              <th class="text-center" width="50">No</th>
-              <th width="150">Nama Produk</th>
-              <th width="80">Kategori</th>
-              <th width="80">Brand</th>
-              <th width="60" class="text-center">Gambar</th>
-              <th width="120">Harga</th>
-              <th width="60" class="text-center">Stok</th>
-              <th width="80" class="text-center">Status</th>
-              <th width="80" class="text-center">Aksi</th>
+              <th class="text-center" style="width: 50px">No</th>
+              <th>Nama Produk</th>
+              <th>Kategori</th>
+              <th>Brand</th>
+              <th class="text-center">Gambar</th>
+              <th>Harga</th>
+              <th class="text-center">Stok</th>
+              <th class="text-center">Status</th>
+              <th class="text-center" style="width: 150px">Aksi</th>
             </tr>
           </thead>
+          
           <tbody>
+            <?php if (!empty($produk)) : ?>
+              <?php $no = 1 + ($offset ?? 0); ?>
+              <?php foreach ($produk as $p) : ?>
+                
+                <?php
+                  // Logic Gambar
+                  $imgPath = FCPATH.'assets/uploads/produk/'.$p->gambar_produk;
+                  $imgUrl  = ($p->gambar_produk && file_exists($imgPath))
+                             ? base_url('assets/uploads/produk/'.$p->gambar_produk)
+                             : base_url('assets/img/no-image.png'); // Gunakan placeholder jika kosong
+                ?>
 
-          <?php if (!empty($produk)) : ?>
-            <?php $no = 1 + ($offset ?? 0); ?>
-            <?php foreach ($produk as $p) : ?>
+                <tr>
+                  <td class="text-center align-middle"><?= $no++; ?></td>
 
-            <?php
-              // ==================================================
-              // GAMBAR + FALLBACK
-              // ==================================================
-              $imgPath = FCPATH.'assets/uploads/produk/'.$p->gambar_produk;
-              $imgUrl  = base_url('assets/uploads/produk/'.$p->gambar_produk);
+                  <td class="align-middle">
+                    <strong><?= htmlspecialchars($p->nama_produk); ?></strong>
+                  </td>
 
-              if (empty($p->gambar_produk) || !file_exists($imgPath)) {
-                  $imgUrl = base_url('assets/uploads/brand/default.png');
-              }
-            ?>
+                  <td class="align-middle">
+                    <?= htmlspecialchars($p->nama_kategori); ?>
+                  </td>
 
+                  <td class="align-middle">
+                    <?= htmlspecialchars($p->nama_brand); ?>
+                  </td>
+
+                  <td class="text-center align-middle">
+                    <img src="<?= $imgUrl; ?>" 
+                         class="img-fluid img-thumbnail" 
+                         alt="Produk"
+                         style="height: 50px; width: auto;">
+                  </td>
+
+                  <td class="align-middle">
+                    Rp <?= number_format($p->harga_jual, 0, ',', '.'); ?>
+                  </td>
+
+                  <td class="text-center align-middle">
+                    <?= (int) $p->stok; ?>
+                  </td>
+
+                  <td class="text-center align-middle">
+                    <?php if ($p->status_aktif): ?>
+                        <span class="badge badge-success">Aktif</span>
+                    <?php else: ?>
+                        <span class="badge badge-secondary">Nonaktif</span>
+                    <?php endif; ?>
+                  </td>
+
+                  <td class="text-center align-middle">
+                    <a href="<?= base_url('admin/produk/edit/'.$p->id_produk); ?>" 
+                       class="btn btn-sm btn-warning mr-1" title="Edit">
+                       <i class="fas fa-edit"></i>
+                    </a>
+
+                    <?php if ($p->status_aktif): ?>
+                      <a href="<?= base_url('admin/produk/nonaktif/'.$p->id_produk); ?>" 
+                         class="btn btn-sm btn-danger" 
+                         onclick="return confirm('Nonaktifkan produk ini?')" title="Nonaktifkan">
+                         <i class="fas fa-times"></i>
+                      </a>
+                    <?php else: ?>
+                      <a href="<?= base_url('admin/produk/aktif/'.$p->id_produk); ?>" 
+                         class="btn btn-sm btn-success" 
+                         onclick="return confirm('Aktifkan kembali produk ini?')" title="Aktifkan">
+                         <i class="fas fa-check"></i>
+                      </a>
+                    <?php endif; ?>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php else : ?>
               <tr>
-                <td class="text-center align-middle"><?= $no++; ?></td>
-
-                <td class="align-middle">
-                  <strong><?= htmlspecialchars($p->nama_produk); ?></strong>
-                </td>
-
-                <td class="align-middle">
-                  <?= htmlspecialchars($p->nama_kategori); ?>
-                </td>
-
-                <td class="align-middle">
-                  <?= htmlspecialchars($p->nama_brand); ?>
-                </td>
-
-                <td class="text-center align-middle">
-                  <img src="<?= $imgUrl; ?>"
-                       class="img-thumbnail"
-                       style="max-height:75px; max-width:100px; object-fit:contain;">
-                </td>
-
-                <td class="align-middle">
-                  Rp <?= number_format($p->harga_jual, 0, ',', '.'); ?>
-                </td>
-
-                <td class="text-center align-middle">
-                  <?= (int) $p->stok; ?>
-                </td>
-
-                <td class="text-center align-middle">
-                  <?= $p->status_aktif
-                    ? '<span class="badge bg-success">Aktif</span>'
-                    : '<span class="badge bg-secondary">Nonaktif</span>'; ?>
-                </td>
-
-                <td class="text-center align-middle">
-                  <a href="<?= base_url('admin/produk/edit/'.$p->id_produk); ?>"
-                     class="btn btn-warning btn-sm">
-                    <i class="fas fa-edit"></i>
-                  </a>
-
-                  <?php if ($p->status_aktif): ?>
-                    <a href="<?= base_url('admin/produk/nonaktif/'.$p->id_produk); ?>"
-                       class="btn btn-danger btn-sm"
-                       onclick="return confirm('Nonaktifkan produk ini?')">
-                      <i class="fas fa-times"></i>
-                    </a>
-                  <?php else: ?>
-                    <a href="<?= base_url('admin/produk/aktif/'.$p->id_produk); ?>"
-                       class="btn btn-success btn-sm">
-                      <i class="fas fa-check"></i>
-                    </a>
-                  <?php endif; ?>
+                <td colspan="9" class="text-center text-muted py-3">
+                    <i class="fas fa-box-open mb-2"></i><br>
+                    Data produk tidak ditemukan.
                 </td>
               </tr>
-
-            <?php endforeach; ?>
-          <?php else : ?>
-            <tr>
-              <td colspan="9" class="text-center text-muted">
-                Data tidak ditemukan
-              </td>
-            </tr>
-          <?php endif; ?>
-
+            <?php endif; ?>
           </tbody>
         </table>
       </div>
 
       <div class="card-footer clearfix">
-        <?= $pagination; ?>
+        <?= $pagination ?? ''; ?>
       </div>
-    </div>
 
+    </div>
   </div>
 </section>

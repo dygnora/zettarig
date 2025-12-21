@@ -1,5 +1,3 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
-
 <section class="content-header">
   <div class="container-fluid">
     <div class="row mb-2">
@@ -21,23 +19,23 @@
 <section class="content">
   <div class="container-fluid">
 
-    <div class="card">
+    <div class="card card-dark">
 
       <div class="card-header">
-        <h3 class="card-title">Daftar Penjualan</h3>
+        <h3 class="card-title">Daftar Penjualan Masuk</h3>
       </div>
 
-      <div class="card-body py-1">
-        <table class="table table-bordered table-hover mb-0">
+      <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap table-striped">
           <thead>
             <tr>
-              <th width="60">No</th>
+              <th style="width: 50px">No</th>
               <th>Tanggal</th>
               <th>Customer</th>
               <th>Total</th>
               <th>Pembayaran</th>
               <th class="text-center">Status</th>
-              <th width="120" class="text-center">Aksi</th>
+              <th class="text-center" style="width: 100px">Aksi</th>
             </tr>
           </thead>
 
@@ -53,7 +51,7 @@
                   </td>
 
                   <td>
-                    <?= htmlspecialchars($p->nama_customer); ?>
+                    <strong><?= htmlspecialchars($p->nama_customer); ?></strong>
                   </td>
 
                   <td>
@@ -61,7 +59,9 @@
                   </td>
 
                   <td>
-                    <?= strtoupper($p->metode_pembayaran); ?>
+                    <span class="badge badge-light border">
+                        <?= strtoupper($p->metode_pembayaran); ?>
+                    </span>
                   </td>
 
                   <td class="text-center">
@@ -73,27 +73,27 @@
                             echo '<span class="badge badge-warning">Menunggu Bayar</span>';
                             break;
 
-                        // 2. TAHAP VERIFIKASI (BIRU MUDA / INFO)
+                        // 2. TAHAP VERIFIKASI (BIRU MUDA)
                         case 'menunggu_verifikasi':
                             echo '<span class="badge badge-info">Verifikasi</span>';
                             break;
 
-                        // 3. DIPROSES (BIRU TUA / PRIMARY)
+                        // 3. DIPROSES (BIRU TUA)
                         case 'diproses':
                             echo '<span class="badge badge-primary">Diproses</span>';
                             break;
                         
-                        // 4. DIKIRIM (UNGU / INDIGO - Bawaan AdminLTE)
+                        // 4. DIKIRIM (UNGU)
                         case 'dikirim':
                             echo '<span class="badge bg-purple">Dikirim</span>';
                             break;
 
-                        // 5. SELESAI (HIJAU / SUCCESS)
+                        // 5. SELESAI (HIJAU)
                         case 'selesai':
                             echo '<span class="badge badge-success">Selesai</span>';
                             break;
 
-                        // 6. BATAL (MERAH / DANGER)
+                        // 6. BATAL (MERAH)
                         case 'dibatalkan':
                             echo '<span class="badge badge-danger">Batal</span>';
                             break;
@@ -105,17 +105,18 @@
                   </td>
 
                   <td class="text-center">
-                    <a href="<?= base_url('admin/penjualan/detail/'.$p->id_penjualan); ?>"
-                       class="btn btn-info btn-sm">
-                      <i class="fas fa-eye"></i> Detail
+                    <a href="<?= base_url('admin/penjualan/detail/'.$p->id_penjualan); ?>" 
+                       class="btn btn-info btn-sm" title="Lihat Detail">
+                       <i class="fas fa-eye"></i> Detail
                     </a>
                   </td>
                 </tr>
               <?php endforeach; ?>
             <?php else: ?>
               <tr>
-                <td colspan="7" class="text-center text-muted">
-                  Belum ada data penjualan
+                <td colspan="7" class="text-center text-muted py-3">
+                    <i class="fas fa-shopping-cart mb-2"></i><br>
+                    Belum ada data penjualan.
                 </td>
               </tr>
             <?php endif; ?>

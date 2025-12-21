@@ -1,5 +1,3 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
-
 <section class="content-header">
   <div class="container-fluid">
     <div class="row mb-2">
@@ -38,22 +36,22 @@
         </div>
     <?php endif; ?>
 
-    <div class="card">
+    <div class="card card-dark">
 
       <div class="card-header">
         <h3 class="card-title">Daftar Pembayaran Transfer</h3>
       </div>
 
-      <div class="card-body py-1">
-        <table class="table table-bordered table-hover mb-0">
+      <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap table-striped">
           <thead>
             <tr>
-              <th width="60">No</th>
+              <th style="width: 50px">No</th>
               <th>Tanggal</th>
               <th>Customer</th>
               <th>Total Bayar</th>
-              <th>Status</th>
-              <th width="140" class="text-center">Aksi</th>
+              <th class="text-center">Status</th>
+              <th class="text-center" style="width: 150px">Aksi</th>
             </tr>
           </thead>
 
@@ -69,14 +67,14 @@
                   </td>
 
                   <td>
-                    <?= htmlspecialchars($p->nama_customer); ?>
+                    <strong><?= htmlspecialchars($p->nama_customer); ?></strong>
                   </td>
 
                   <td>
                     Rp <?= number_format($p->jumlah_dibayar, 0, ',', '.'); ?>
                   </td>
 
-                  <td>
+                  <td class="text-center">
                     <?php if ($p->status_verifikasi === 'menunggu'): ?>
                       <span class="badge badge-warning">Menunggu</span>
                     <?php elseif ($p->status_verifikasi === 'diterima'): ?>
@@ -112,7 +110,8 @@
               <?php endforeach; ?>
             <?php else: ?>
               <tr>
-                <td colspan="6" class="text-center text-muted">
+                <td colspan="6" class="text-center text-muted py-3">
+                  <i class="fas fa-money-bill-wave mb-2"></i><br>
                   Belum ada data pembayaran transfer
                 </td>
               </tr>
