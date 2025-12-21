@@ -258,7 +258,7 @@ class Laporan_admin extends MY_Controller
     }
 
     // ==================================================
-    // [BARU] EXPORT EXCEL DETAIL USER
+    // 6. EXPORT EXCEL DETAIL CUSTOMER (PROFESSIONAL REDESIGN)
     // ==================================================
     public function export_excel_user($id_customer)
     {
@@ -266,81 +266,166 @@ class Laporan_admin extends MY_Controller
         $start = $this->input->get('start') ?? '';
         $end   = $this->input->get('end') ?? '';
 
+        // 1. Ambil Data Customer (Gunakan Laporan_model, BUKAN Laporan_pembelian_model)
         $customer = $this->Laporan_model->get_customer($id_customer);
         if (!$customer) show_404();
 
+        // 2. Ambil Data Detail Penjualan
         $detail = $this->Laporan_model
             ->detail_penjualan_user($id_customer, $mode, $start, $end);
 
-        $filename = 'Laporan_Detail_' . $customer->nama . '_' . date('d_m_Y') . '.xls';
-
+        // 3. Setup Filename & Headers
+        $clean_name = preg_replace('/[^a-zA-Z0-9]/', '_', $customer->nama);
+        $filename   = 'Laporan_Detail_' . $clean_name . '_' . date('Ymd_Hi') . '.xls';
+        
         header("Content-Type: application/vnd.ms-excel");
         header("Content-Disposition: attachment; filename=\"$filename\"");
         header("Pragma: no-cache");
         header("Expires: 0");
 
+        // 4. Setup Variabel Tampilan
+        $periode_label = ($start && $end) 
+            ? date('d M Y', strtotime($start)) . ' s/d ' . date('d M Y', strtotime($end)) 
+            : 'Semua Riwayat';
+            
+        // Warna Tema (Biru Profesional)
+        $theme_color = '#1F4E79'; 
+        $theme_text  = '#FFFFFF';
         ?>
         <!DOCTYPE html>
-        <html>
+        <html lang="id">
         <head>
             <meta charset="utf-8">
+            <title>Laporan Detail Transaksi Customer</title>
             <style>
-                body { font-family: Arial, sans-serif; }
+                /* Reset & Font Dasar */
+                body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; color: #000000; }
                 table { border-collapse: collapse; width: 100%; }
-                th, td { border: 1px solid #000000; padding: 8px; vertical-align: middle; }
-                th { background-color: #4CAF50; color: white; text-align: center; }
-                tr:nth-child(even) { background-color: #f2f2f2; }
-                .text-right { text-align: right; }
+                
+                /* Styling Judul Utama */
+                .title-row { font-size: 16pt; font-weight: bold; text-align: center; height: 30px; }
+                
+                /* Styling Meta Info */
+                .meta-label { font-weight: bold; text-align: left; vertical-align: top; }
+                .meta-value { text-align: left; vertical-align: top; }
+                
+                /* Styling Table Header */
+                .thead { 
+                    background-color: <?= $theme_color ?>; 
+                    color: <?= $theme_text ?>; 
+                    font-weight: bold; 
+                    text-align: center; 
+                    vertical-align: middle;
+                    border: 1px solid #000000;
+                    height: 35px;
+                }
+                
+                /* Styling Table Body */
+                td { border: 1px solid #000000; padding: 5px; vertical-align: middle; }
+                
+                /* Zebra Striping */
+                .even-row { background-color: #EBF1DE; } /* Hijau muda/abu */
+                
+                /* Styling Footer (Total) */
+                .tfoot { 
+                    background-color: #DDDDDD; 
+                    font-weight: bold; 
+                    border: 1px solid #000000;
+                    color: #000000;
+                }
+
+                /* Helper Classes */
                 .text-center { text-align: center; }
-                .header-info { margin-bottom: 20px; font-weight: bold; }
+                .text-right { text-align: right; }
+                .text-left { text-align: left; }
             </style>
         </head>
         <body>
-            <div class="header-info">
-                LAPORAN DETAIL TRANSAKSI<br>
-                Customer: <?= $customer->nama; ?><br>
-                Periode: <?= ($start && $end) ? date('d-m-Y', strtotime($start)) . ' s/d ' . date('d-m-Y', strtotime($end)) : 'Semua Waktu'; ?>
-            </div>
-
+            
             <table>
+                <tr>
+                    <td colspan="7" class="title-row" style="border: none;">LAPORAN DETAIL TRANSAKSI CUSTOMER</td>
+                </tr>
+                <tr><td colspan="7" style="border: none; height: 10px;"></td></tr>
+
+                <tr>
+                    <td colspan="2" style="border: none; width: 150px;" class="meta-label">Nama Customer</td>
+                    <td colspan="5" style="border: none;" class="meta-value">: <?= strtoupper($customer->nama); ?></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="border: none;" class="meta-label">Periode</td>
+                    <td colspan="5" style="border: none;" class="meta-value" style="mso-number-format:'\@'">: <?= $periode_label; ?></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="border: none;" class="meta-label">Tanggal Cetak</td>
+                    <td colspan="5" style="border: none;" class="meta-value">: <?= date('d F Y, H:i'); ?> WIB</td>
+                </tr>
+                <tr><td colspan="7" style="border: none; height: 15px;"></td></tr>
+            </table>
+
+            <table border="1">
                 <thead>
                     <tr>
-                        <th width="40">No</th>
-                        <th width="150">Tanggal</th>
-                        <th width="250">Produk</th>
-                        <th width="60">Qty</th>
-                        <th width="150">Metode</th>
-                        <th width="120">Status</th>
-                        <th width="150">Subtotal</th>
+                        <th class="thead" width="50">NO</th>
+                        <th class="thead" width="120">TANGGAL</th>
+                        <th class="thead" width="300">NAMA PRODUK</th>
+                        <th class="thead" width="60">QTY</th>
+                        <th class="thead" width="120">METODE</th>
+                        <th class="thead" width="120">STATUS</th>
+                        <th class="thead" width="150">SUBTOTAL (RP)</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     <?php 
                     $no = 1; 
                     $grand_total = 0;
+                    
                     if (!empty($detail)): 
-                        foreach ($detail as $d): 
+                        foreach ($detail as $key => $d): 
                         $grand_total += $d->subtotal;
+                        
+                        // Zebra Striping Logic
+                        $row_style = ($key % 2 == 1) ? 'background-color: #EBF1DE;' : ''; 
                     ?>
                         <tr>
-                            <td class="text-center"><?= $no++; ?></td>
-                            <td class="text-center"><?= date('d/m/Y', strtotime($d->tanggal_pesanan)); ?></td>
-                            <td><?= $d->nama_produk; ?></td>
-                            <td class="text-center"><?= $d->jumlah; ?></td>
-                            <td class="text-center"><?= strtoupper($d->metode_pembayaran); ?></td>
-                            <td class="text-center"><?= ucfirst($d->status_pesanan); ?></td>
-                            <td class="text-right"><?= number_format($d->subtotal, 0, ',', '.'); ?></td>
+                            <td class="text-center" style="<?= $row_style ?>"><?= $no++; ?></td>
+                            
+                            <td class="text-center" style="<?= $row_style ?> mso-number-format:'dd\/mm\/yyyy';">
+                                <?= date('d/m/Y', strtotime($d->tanggal_pesanan)); ?>
+                            </td>
+                            
+                            <td class="text-left" style="<?= $row_style ?>"><?= $d->nama_produk; ?></td>
+                            
+                            <td class="text-center" style="<?= $row_style ?>"><?= $d->jumlah; ?></td>
+                            
+                            <td class="text-center" style="<?= $row_style ?>"><?= strtoupper($d->metode_pembayaran); ?></td>
+                            
+                            <td class="text-center" style="<?= $row_style ?>"><?= ucfirst($d->status_pesanan); ?></td>
+                            
+                            <td class="text-right" style="<?= $row_style ?> mso-number-format:'\#\,\#\#0';">
+                                <?= $d->subtotal; ?>
+                            </td>
                         </tr>
                     <?php endforeach; else: ?>
-                        <tr><td colspan="7" class="text-center">Tidak ada data.</td></tr>
+                        <tr>
+                            <td colspan="7" class="text-center" style="padding: 20px; font-style: italic;">
+                                -- Tidak ada data transaksi ditemukan pada periode ini --
+                            </td>
+                        </tr>
                     <?php endif; ?>
-                    
-                    <tr style="background-color: #FFFF00; font-weight: bold;">
-                        <td colspan="6" class="text-right">TOTAL KESELURUHAN</td>
-                        <td class="text-right">Rp <?= number_format($grand_total, 0, ',', '.'); ?></td>
-                    </tr>
                 </tbody>
+
+                <tfoot>
+                    <tr>
+                        <td colspan="6" class="tfoot text-right">TOTAL TRANSAKSI</td>
+                        <td class="tfoot text-right" style="mso-number-format:'\#\,\#\#0'; border-top: 2px double #000000;">
+                            <?= $grand_total; ?>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
+
         </body>
         </html>
         <?php
