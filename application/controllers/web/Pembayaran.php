@@ -35,7 +35,7 @@ class Pembayaran extends CI_Controller
 
         $data['title']   = 'Upload Bukti Transfer';
         $data['pesanan'] = $pesanan;
-        $data['content'] = 'web/pembayaran/upload'; // View form upload biasa
+        $data['content'] = 'web/pembayaran/upload'; 
 
         $this->load->view('web/layout/template', $data);
     }
@@ -45,9 +45,9 @@ class Pembayaran extends CI_Controller
     // ==================================================
     public function process($id_penjualan)
     {
-        // ... (Kode lama Anda tetap sama di sini) ...
         $customer_id = $this->session->userdata('customer_id');
 
+        // 1. Ambil Data Pesanan (PENTING: Kita butuh total_harga)
         $pesanan = $this->Penjualan_model
             ->get_detail_by_customer($id_penjualan, $customer_id);
 
@@ -55,7 +55,8 @@ class Pembayaran extends CI_Controller
             show_404(); return;
         }
 
-        $config['upload_path'] = FCPATH . 'assets/uploads/bukti_transfer/';
+        // 2. Config Upload
+        $config['upload_path']   = FCPATH . 'assets/uploads/bukti_transfer/';
         $config['allowed_types'] = 'jpg|jpeg|png';
         $config['max_size']      = 2048;
         $config['encrypt_name']  = true;
@@ -70,35 +71,40 @@ class Pembayaran extends CI_Controller
 
         $file = $this->upload->data();
 
-        // Cek apakah sudah ada record pembayaran sebelumnya
+        // 3. Cek & Update Database
+        // Cek apakah sudah ada record (biasanya sudah dibuat saat checkout dgn nilai 0)
         $existing = $this->db->get_where('pembayaran_transfer', ['id_penjualan' => $id_penjualan])->row();
         
         if ($existing) {
-             // Update jika sudah ada (misal upload ulang)
+             // [PERBAIKAN DISINI] 
+             // Kita update 'jumlah_dibayar' sesuai total_harga pesanan agar tidak 0
              $this->db->where('id_penjualan', $id_penjualan)
                       ->update('pembayaran_transfer', [
-                          'bukti_transfer' => $file['file_name'],
-                          'status_verifikasi'=> 'menunggu',
-                          'tanggal_upload' => date('Y-m-d H:i:s')
+                          'bukti_transfer'    => $file['file_name'],
+                          'jumlah_dibayar'    => $pesanan->total_harga, // <--- INI PERBAIKANNYA
+                          'status_verifikasi' => 'menunggu',
+                          'tanggal_upload'    => date('Y-m-d H:i:s')
                       ]);
         } else {
-             // Insert baru
+             // Jika insert baru (fallback)
              $this->db->insert('pembayaran_transfer', [
-                'id_penjualan'     => $id_penjualan,
-                'bukti_transfer'   => $file['file_name'],
-                'jumlah_dibayar'   => $pesanan->total_harga,
-                'status_verifikasi'=> 'menunggu',
-                'tanggal_upload'   => date('Y-m-d H:i:s')
+                'id_penjualan'      => $id_penjualan,
+                'bukti_transfer'    => $file['file_name'],
+                'jumlah_dibayar'    => $pesanan->total_harga,
+                'status_verifikasi' => 'menunggu',
+                'tanggal_upload'    => date('Y-m-d H:i:s')
             ]);
         }
 
+        // 4. Update Status Pesanan Utama
         $this->db->where('id_penjualan', $id_penjualan)
                  ->update('penjualan', ['status_pesanan' => 'menunggu_verifikasi']);
 
+        // 5. Catat Timeline
         $this->db->insert('timeline_pesanan', [
             'id_penjualan' => $id_penjualan,
             'status_tahap' => 'Upload Bukti Transfer',
-            'catatan'      => 'Customer mengupload bukti transfer'
+            'catatan'      => 'Customer mengupload bukti transfer senilai Rp ' . number_format($pesanan->total_harga)
         ]);
 
         $this->session->set_flashdata('success', 'Bukti transfer berhasil diupload.');
@@ -107,7 +113,7 @@ class Pembayaran extends CI_Controller
 
 
     // ==================================================
-    // [BARU] PROSES UPLOAD DP COD
+    // PROSES UPLOAD DP COD
     // ==================================================
     public function process_dp()
     {
@@ -146,6 +152,7 @@ class Pembayaran extends CI_Controller
         $file = $this->upload->data();
 
         // Update Tabel COD
+        // Catatan: dp_dibayar untuk COD diupdate oleh Admin saat Verifikasi, bukan saat upload.
         $this->db->where('id_cod', $cod_data->id_cod)
                  ->update('pembayaran_cod', [
                      'bukti_dp'          => $file['file_name'],
@@ -153,14 +160,14 @@ class Pembayaran extends CI_Controller
                      'status_dp'         => 'menunggu' // Reset status agar admin cek
                  ]);
         
-        // Update Status Pesanan jadi menunggu_verifikasi agar admin sadar
+        // Update Status Pesanan
         $this->db->where('id_penjualan', $id_penjualan)
                  ->update('penjualan', ['status_pesanan' => 'menunggu_verifikasi']);
 
         // Timeline
         $this->db->insert('timeline_pesanan', [
             'id_penjualan' => $id_penjualan,
-            'status_tahap' => 'Upload Bukti Transfer', // Samakan formatnya
+            'status_tahap' => 'Upload Bukti Transfer',
             'catatan'      => 'Customer mengupload bukti transfer DP'
         ]);
 

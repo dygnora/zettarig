@@ -1,8 +1,5 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 
-<!-- ==================================================
-     HEADER
-     ================================================== -->
 <section class="content-header">
   <div class="container-fluid">
     <div class="row mb-2">
@@ -21,11 +18,25 @@
   </div>
 </section>
 
-<!-- ==================================================
-     CONTENT
-     ================================================== -->
 <section class="content">
   <div class="container-fluid">
+
+    <?php if ($this->session->flashdata('success')): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <?= $this->session->flashdata('success'); ?>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    <?php endif; ?>
+    <?php if ($this->session->flashdata('error')): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <?= $this->session->flashdata('error'); ?>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    <?php endif; ?>
 
     <div class="card">
 
@@ -33,7 +44,6 @@
         <h3 class="card-title">Daftar Pembayaran Transfer</h3>
       </div>
 
-      <!-- BODY -->
       <div class="card-body py-1">
         <table class="table table-bordered table-hover mb-0">
           <thead>
@@ -78,20 +88,22 @@
 
                   <td class="text-center">
                     <a href="<?= base_url('admin/pembayaran/detail/'.$p->id_pembayaran); ?>"
-                       class="btn btn-info btn-sm">
+                       class="btn btn-info btn-sm" title="Lihat Detail & Bukti">
                       <i class="fas fa-eye"></i>
                     </a>
 
                     <?php if ($p->status_verifikasi === 'menunggu'): ?>
                       <a href="<?= base_url('admin/pembayaran/verifikasi/'.$p->id_pembayaran.'/diterima'); ?>"
                          class="btn btn-success btn-sm"
-                         onclick="return confirm('Terima pembayaran ini?')">
+                         onclick="return confirm('Terima pembayaran ini? Status pesanan akan berubah jadi DIPROSES.')"
+                         title="Terima Pembayaran">
                         <i class="fas fa-check"></i>
                       </a>
 
                       <a href="<?= base_url('admin/pembayaran/verifikasi/'.$p->id_pembayaran.'/ditolak'); ?>"
                          class="btn btn-danger btn-sm"
-                         onclick="return confirm('Tolak pembayaran ini?')">
+                         onclick="return confirm('Tolak pembayaran ini? Customer diminta upload ulang.')"
+                         title="Tolak Pembayaran">
                         <i class="fas fa-times"></i>
                       </a>
                     <?php endif; ?>
@@ -109,9 +121,6 @@
         </table>
       </div>
 
-      <!-- ==================================================
-           PAGINATION
-           ================================================== -->
       <div class="card-footer clearfix">
         <?= $pagination ?? ''; ?>
       </div>

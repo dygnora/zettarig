@@ -26,47 +26,129 @@
         <?php endif; ?>
 
         <?php if (!in_array($penjualan->status_pesanan, ['selesai', 'dibatalkan'])): ?>
-        <div class="card card-primary card-outline mb-3">
+        <div class="card card-outline card-primary mb-3">
             <div class="card-header">
                 <h3 class="card-title">Aksi Admin</h3>
             </div>
             <div class="card-body">
-                <div class="d-flex gap-2">
+
+                <?php if (in_array($penjualan->status_pesanan, ['dibuat', 'menunggu_pembayaran', 'menunggu_verifikasi'])): ?>
                     
-                    <?php if (in_array($penjualan->status_pesanan, ['dibuat', 'menunggu_verifikasi', 'menunggu_pembayaran'])): ?>
-                        <a href="<?= base_url('admin/penjualan/proses/'.$penjualan->id_penjualan); ?>" 
-                           class="btn btn-primary mr-2"
-                           onclick="return confirm('Verifikasi dan Proses pesanan ini?');">
-                           <i class="fas fa-check"></i> Proses Pesanan
-                        </a>
+                    <?php 
+                    // LOGIKA BARU: Cek apakah COD Kecil (< 5 Juta)
+                    // Aturan: Jika COD dan < 5jt, tidak perlu DP, bisa langsung proses.
+                    $is_cod_kecil = ($penjualan->metode_pembayaran == 'cod' && $penjualan->total_harga < 5000000);
+                    ?>
+
+                    <?php if ($is_cod_kecil): ?>
+                        
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-info-circle"></i> Pesanan COD (Tanpa DP)</h5>
+                            <p class="mb-2">
+                                Total belanja dibawah Rp 5.000.000. <strong>Tidak memerlukan DP.</strong><br>
+                                Silakan langsung proses (packing) pesanan ini.
+                            </p>
+                            
+                            <div class="d-flex mt-3">
+                                <a href="<?= base_url('admin/penjualan/proses/'.$penjualan->id_penjualan); ?>" 
+                                   class="btn btn-primary mr-2"
+                                   onclick="return confirm('Verifikasi dan Proses pesanan ini?');">
+                                   <i class="fas fa-box-open"></i> PROSES PESANAN
+                                </a>
+
+                                <a href="<?= base_url('admin/penjualan/batal/'.$penjualan->id_penjualan); ?>" 
+                                   class="btn btn-danger"
+                                   onclick="return confirm('Yakin ingin membatalkan pesanan ini?');">
+                                   <i class="fas fa-times"></i> Batalkan
+                                </a>
+                            </div>
+                        </div>
+
+                    <?php else: ?>
+
+                        <div class="alert alert-warning">
+                            <h5><i class="icon fas fa-exclamation-triangle"></i> Pembayaran Belum Valid!</h5>
+                            <p class="mb-2">
+                                Anda tidak dapat memproses pesanan ini karena pembayaran/DP belum diverifikasi.<br>
+                                Silakan cek bukti pembayaran terlebih dahulu.
+                            </p>
+                            
+                            <div class="d-flex mt-3">
+                                <?php if ($penjualan->metode_pembayaran == 'cod'): ?>
+                                    <a href="<?= base_url('admin/cod/penjualan/'.$penjualan->id_penjualan); ?>" class="btn btn-outline-dark mr-2">
+                                        <i class="fas fa-hand-holding-usd mr-1"></i> Cek & Verifikasi DP COD
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?= base_url('admin/pembayaran/penjualan/'.$penjualan->id_penjualan); ?>" class="btn btn-outline-dark mr-2">
+                                        <i class="fas fa-money-bill-wave mr-1"></i> Cek Bukti Transfer
+                                    </a>
+                                <?php endif; ?>
+                                
+                                <a href="<?= base_url('admin/penjualan/batal/'.$penjualan->id_penjualan); ?>" 
+                                   class="btn btn-danger"
+                                   onclick="return confirm('Yakin ingin membatalkan pesanan ini?');">
+                                   <i class="fas fa-times"></i> Batalkan Pesanan
+                                </a>
+                            </div>
+                        </div>
+
                     <?php endif; ?>
 
-                    <?php if ($penjualan->status_pesanan == 'diproses'): ?>
-                        <a href="<?= base_url('admin/penjualan/kirim/'.$penjualan->id_penjualan); ?>" 
-                           class="btn btn-info mr-2"
-                           onclick="return confirm('Ubah status jadi DIKIRIM?');">
-                           <i class="fas fa-truck"></i> Kirim Barang
-                        </a>
-                    <?php endif; ?>
+                <?php elseif ($penjualan->status_pesanan == 'diproses'): ?>
+                    
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Pembayaran telah diverifikasi. Pesanan siap dikirim.
+                    </div>
 
-                    <?php if ($penjualan->status_pesanan == 'dikirim'): ?>
-                        <a href="<?= base_url('admin/penjualan/selesai/'.$penjualan->id_penjualan); ?>" 
-                           class="btn btn-success mr-2"
-                           onclick="return confirm('Selesaikan pesanan ini?');">
-                           <i class="fas fa-check-double"></i> Pesanan Selesai
-                        </a>
-                    <?php endif; ?>
-
+                    <a href="<?= base_url('admin/penjualan/kirim/'.$penjualan->id_penjualan); ?>" 
+                       class="btn btn-primary btn-lg mr-2"
+                       onclick="return confirm('Pesanan sudah dipacking dan siap dikirim?');">
+                       <i class="fas fa-truck"></i> KIRIM BARANG
+                    </a>
+                    
                     <a href="<?= base_url('admin/penjualan/batal/'.$penjualan->id_penjualan); ?>" 
                        class="btn btn-danger"
-                       onclick="return confirm('Yakin BATALKAN pesanan ini?');">
+                       onclick="return confirm('Yakin ingin membatalkan pesanan ini?');">
                        <i class="fas fa-times"></i> Batalkan
                     </a>
 
-                </div>
+                <?php elseif ($penjualan->status_pesanan == 'dikirim'): ?>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-truck"></i> Pesanan sedang dalam pengiriman.
+                    </div>
+                    
+                    <?php if ($penjualan->metode_pembayaran == 'cod'): ?>
+                        
+                        <div class="alert alert-warning">
+                            <h5><i class="fas fa-hand-holding-usd"></i> Menunggu Pelunasan COD</h5>
+                            <p class="mb-2">
+                                Pesanan ini menggunakan metode <strong>COD</strong>.<br>
+                                Anda tidak bisa menandai selesai secara manual di sini.<br>
+                                Silakan input pelunasan uang COD terlebih dahulu.
+                            </p>
+                            <a href="<?= base_url('admin/cod/penjualan/'.$penjualan->id_penjualan); ?>" 
+                               class="btn btn-warning text-bold">
+                               <i class="fas fa-money-bill-wave"></i> INPUT PELUNASAN COD
+                            </a>
+                        </div>
+
+                    <?php else: ?>
+
+                        <a href="<?= base_url('admin/penjualan/selesai/'.$penjualan->id_penjualan); ?>" 
+                           class="btn btn-success btn-lg"
+                           onclick="return confirm('Pastikan barang sudah diterima customer. Selesaikan pesanan?');">
+                           <i class="fas fa-check-double"></i> TANDAI SELESAI
+                        </a>
+
+                    <?php endif; ?>
+
+                <?php endif; ?>
+
             </div>
         </div>
         <?php endif; ?>
+
 
         <div class="row">
             <div class="col-md-8">
@@ -116,15 +198,11 @@
                             <div>
                                 <?php 
                                     $tahap = strtolower($t->status_tahap);
-                                    $bg = 'bg-gray'; // Default
+                                    $bg = 'bg-gray'; // Default (Abu-abu)
 
-                                    // 1. Dibuat (Biru Tua)
                                     if(strpos($tahap, 'dibuat') !== false) {
                                         $bg = 'bg-primary';
                                     } 
-                                    // 2. Upload Bukti
-                                    // - Kuning jika pesanan sudah diproses (diterima)
-                                    // - Abu-abu jika belum
                                     elseif(strpos($tahap, 'upload') !== false) {
                                         if (in_array($penjualan->status_pesanan, ['diproses', 'dikirim', 'selesai'])) {
                                             $bg = 'bg-warning'; 
@@ -132,23 +210,18 @@
                                             $bg = 'bg-gray';
                                         }
                                     }
-                                    // 3. Pembayaran Diterima (HIJAU)
-                                    elseif(strpos($tahap, 'diterima') !== false) {
+                                    elseif(strpos($tahap, 'diterima') !== false || strpos($tahap, 'lunas') !== false) {
                                         $bg = 'bg-success';
                                     }
-                                    // 4. Diproses (Biru Muda)
                                     elseif(strpos($tahap, 'diproses') !== false) {
                                         $bg = 'bg-info';
                                     }
-                                    // 5. Dikirim (Ungu)
                                     elseif(strpos($tahap, 'dikirim') !== false) {
                                         $bg = 'bg-purple';
                                     }
-                                    // 6. Selesai (Hijau)
                                     elseif(strpos($tahap, 'selesai') !== false) {
                                         $bg = 'bg-success';
                                     }
-                                    // 7. Dibatalkan / Ditolak (Merah)
                                     elseif(strpos($tahap, 'dibatalkan') !== false || strpos($tahap, 'ditolak') !== false) {
                                         $bg = 'bg-danger';
                                     }

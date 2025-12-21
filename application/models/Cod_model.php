@@ -64,12 +64,13 @@ class Cod_model extends CI_Model
     }
 
     // ==================================================
-    // [LOGIC UTAMA] VERIFIKASI DP
+    // [LOGIC UTAMA] VERIFIKASI DP (SUDAH DIPERBAIKI)
     // ==================================================
     public function verifikasi_dp($id_cod, $status)
     {
-        // Ambil data untuk referensi ID Penjualan
+        // 1. Ambil data COD saat ini untuk referensi
         $cod = $this->db->get_where('pembayaran_cod', ['id_cod' => $id_cod])->row();
+        
         if (!$cod) return false;
 
         $id_penjualan = $cod->id_penjualan;
@@ -81,14 +82,25 @@ class Cod_model extends CI_Model
         // --- MULAI TRANSAKSI ---
         $this->db->trans_start();
 
-        // 1. Update Status DP di tabel pembayaran_cod
-        $this->db->where('id_cod', $id_cod)
-                 ->update('pembayaran_cod', ['status_dp' => $status]);
+        // 2. Siapkan Data Update
+        $update_data = ['status_dp' => $status];
 
-        // 2. Logika Status Pesanan & Timeline
+        // [FIX] Jika DITERIMA, otomatis isi dp_dibayar sesuai tagihan
+        if ($status == 'diterima') {
+            $update_data['dp_dibayar'] = $cod->dp_wajib; 
+        } else {
+            // Jika DITOLAK/RESET, kosongkan lagi
+            $update_data['dp_dibayar'] = 0;
+        }
+
+        // 3. Update Tabel pembayaran_cod
+        $this->db->where('id_cod', $id_cod)
+                 ->update('pembayaran_cod', $update_data);
+
+        // 4. Logika Status Pesanan & Timeline
         if ($status == 'diterima') {
             
-            // Jika DP Diterima -> Pesanan jadi 'diproses'
+            // Jika DP Diterima -> Pesanan lanjut 'diproses'
             $this->db->where('id_penjualan', $id_penjualan)
                      ->update('penjualan', ['status_pesanan' => 'diproses']);
             
@@ -97,11 +109,11 @@ class Cod_model extends CI_Model
                 'id_penjualan' => $id_penjualan,
                 'status_tahap' => 'DP COD Diterima',
                 'waktu'        => $now,
-                'catatan'      => 'DP sebesar Rp ' . number_format($cod->dp_dibayar) . ' telah diverifikasi.'
+                'catatan'      => 'DP sebesar Rp ' . number_format($cod->dp_wajib) . ' telah diverifikasi admin.'
             ]);
 
         } else {
-            // Jika DP Ditolak -> Pesanan balik ke 'menunggu_pembayaran' (atau dibuat)
+            // Jika DP Ditolak -> Pesanan tahan di 'menunggu_pembayaran'
             $this->db->where('id_penjualan', $id_penjualan)
                      ->update('penjualan', ['status_pesanan' => 'menunggu_pembayaran']);
 
@@ -141,7 +153,7 @@ class Cod_model extends CI_Model
         $this->db->where('id_penjualan', $cod->id_penjualan)
                  ->update('penjualan', ['status_pesanan' => 'selesai']);
 
-        // 3. Catat Timeline 1: Pelunasan
+        // 3. Catat Timeline 1: Pelunasan Sisa
         $this->db->insert('timeline_pesanan', [
             'id_penjualan' => $cod->id_penjualan,
             'status_tahap' => 'COD Lunas',

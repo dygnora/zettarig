@@ -65,14 +65,17 @@ class Pembayaran_model extends CI_Model
     // ==================================================
     public function proses_verifikasi($id_pembayaran, $id_penjualan, $status_verifikasi)
     {
-        // 1. SET TIMEZONE KE WIB (PENTING AGAR JAM SESUAI)
+        // 1. SET TIMEZONE KE WIB
         date_default_timezone_set('Asia/Jakarta');
         $waktu_sekarang = date('Y-m-d H:i:s');
+
+        // --- MULAI TRANSAKSI DATABASE (SAFETY) ---
+        $this->db->trans_start();
 
         // 2. UPDATE STATUS DI TABEL PEMBAYARAN_TRANSFER
         $data_bayar = [
             'status_verifikasi'  => $status_verifikasi,
-            'tanggal_verifikasi' => $waktu_sekarang // Pakai waktu WIB
+            'tanggal_verifikasi' => $waktu_sekarang
         ];
         $this->db->where('id_pembayaran', $id_pembayaran)
                  ->update('pembayaran_transfer', $data_bayar);
@@ -84,36 +87,45 @@ class Pembayaran_model extends CI_Model
             $this->db->where('id_penjualan', $id_penjualan)
                      ->update('penjualan', ['status_pesanan' => 'diproses']);
 
-            // B. Masukkan Timeline 1: Pembayaran Diterima (Warna Hijau)
+            // B. Masukkan Timeline 1: Pembayaran Diterima
             $this->db->insert('timeline_pesanan', [
                 'id_penjualan' => $id_penjualan,
                 'status_tahap' => 'Pembayaran Diterima', 
-                'waktu'        => $waktu_sekarang, // WIB
+                'waktu'        => $waktu_sekarang,
                 'catatan'      => 'Bukti transfer valid. Pembayaran diterima.'
             ]);
 
             // C. Masukkan Timeline 2: Pesanan Diproses (Otomatis lanjut)
-            // Kita tambahkan 1 detik agar urutannya pasti di bawah "Pembayaran Diterima"
+            // Tambah 1 detik agar urutan logis
             $waktu_proses = date('Y-m-d H:i:s', strtotime($waktu_sekarang) + 1);
 
             $this->db->insert('timeline_pesanan', [
                 'id_penjualan' => $id_penjualan,
                 'status_tahap' => 'Pesanan Diproses',
-                'waktu'        => $waktu_proses, // WIB + 1 detik
+                'waktu'        => $waktu_proses,
                 'catatan'      => 'Pesanan sedang disiapkan oleh admin.'
             ]);
 
         } else {
             // JIKA DITOLAK
+            
+            // A. Kembalikan status pesanan ke 'menunggu_pembayaran'
             $this->db->where('id_penjualan', $id_penjualan)
                      ->update('penjualan', ['status_pesanan' => 'menunggu_pembayaran']);
 
+            // B. Catat Timeline Penolakan
             $this->db->insert('timeline_pesanan', [
                 'id_penjualan' => $id_penjualan,
                 'status_tahap' => 'Pembayaran Ditolak',
-                'waktu'        => $waktu_sekarang, // WIB
-                'catatan'      => 'Bukti tidak valid. Silakan upload ulang.'
+                'waktu'        => $waktu_sekarang,
+                'catatan'      => 'Bukti tidak valid/buram. Silakan upload ulang.'
             ]);
         }
+
+        // --- SELESAI TRANSAKSI ---
+        $this->db->trans_complete();
+
+        // Kembalikan status transaksi (TRUE jika sukses, FALSE jika gagal)
+        return $this->db->trans_status();
     }
 }
