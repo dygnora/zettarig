@@ -1,225 +1,242 @@
 <?php
 /**
  * ==========================================================
- * DETAIL PESANAN CUSTOMER - ZETTARIG
+ * DETAIL PESANAN - ZETTARIG (MISSION REPORT STYLE)
  * ==========================================================
  */
+
+// Mapping Warna Status
+$status_color = [
+    'dibuat'              => 'warning',
+    'menunggu_pembayaran' => 'warning',
+    'menunggu_verifikasi' => 'info',
+    'diproses'            => 'primary',
+    'dikirim'             => 'secondary', // Di tema pixel, secondary sering dipakai untuk "ongoing"
+    'selesai'             => 'success',
+    'dibatalkan'          => 'danger'
+];
+$warna = $status_color[$pesanan->status_pesanan] ?? 'light';
 ?>
 
-<section class="py-5 bg-grid">
-  <div class="container text-center">
-    <h1 class="pixel-font mb-2">DETAIL PESANAN</h1>
-    <p class="text-muted mb-0">
-      Pesanan #<?= $pesanan->id_penjualan; ?>
-    </p>
-  </div>
+<section class="bg-dark border-bottom border-secondary py-4">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h5 class="pixel-font text-white mb-0" style="font-size: 1rem;">
+                    MISSION LOG #<?= $pesanan->id_penjualan; ?>
+                </h5>
+                <small class="text-secondary" style="font-family: 'VT323'; font-size: 1rem;">
+                    Date: <?= date('d M Y H:i', strtotime($pesanan->tanggal_pesanan)); ?>
+                </small>
+            </div>
+            
+            <div class="px-3 py-2 border border-<?= $warna; ?> bg-<?= $warna; ?> bg-opacity-10 text-<?= $warna; ?> pixel-font" 
+                 style="font-size: 0.8rem; box-shadow: 0 0 10px rgba(var(--bs-<?= $warna; ?>-rgb), 0.2);">
+                STATUS: <?= strtoupper(str_replace('_', ' ', $pesanan->status_pesanan)); ?>
+            </div>
+        </div>
+    </div>
 </section>
 
-<section class="container py-5">
+<section class="bg-grid py-5" style="min-height: 80vh;">
+    <div class="container">
 
-  <div class="row">
-    <div class="col-md-8">
-        
-      <div class="card bg-dark text-light pixel-card p-4 mb-4">
-        <p class="mb-1"><strong>Tanggal</strong></p>
-        <p class="text-muted">
-          <?= date('d M Y H:i', strtotime($pesanan->tanggal_pesanan)); ?>
-        </p>
+        <div class="row g-4">
 
-        <p class="mb-1"><strong>Status Pesanan</strong></p>
-        <p>
-          <?php
-          switch ($pesanan->status_pesanan) {
-            case 'dibuat':
-            case 'menunggu_pembayaran':
-              echo '<span class="badge bg-warning text-dark">Menunggu Pembayaran</span>';
-              break;
-            case 'menunggu_verifikasi':
-              echo '<span class="badge bg-info text-dark">Menunggu Verifikasi Admin</span>';
-              break;
-            case 'diproses':
-              echo '<span class="badge bg-primary">Diproses</span>';
-              break;
-            case 'dikirim':
-              echo '<span class="badge bg-secondary">Dikirim</span>';
-              break;
-            case 'selesai':
-              echo '<span class="badge bg-success">Selesai</span>';
-              break;
-            case 'dibatalkan':
-              echo '<span class="badge bg-danger">Dibatalkan</span>';
-              break;
-            default:
-              echo '<span class="badge bg-secondary">'.$pesanan->status_pesanan.'</span>';
-          }
-          ?>
-        </p>
-      </div>
-
-      <div class="card bg-dark text-light pixel-card p-4 mb-4">
-        <h5 class="mb-3">Produk</h5>
-        <div class="table-responsive">
-          <table class="table table-dark table-bordered align-middle">
-            <thead class="text-center">
-              <tr>
-                <th>Produk</th>
-                <th width="80">Qty</th>
-                <th width="160">Harga</th>
-                <th width="160">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($detail as $item): ?>
-                <tr>
-                  <td>
-                      <div class="d-flex align-items-center">
-                          <?php if(!empty($item->gambar_produk)): ?>
-                              <img src="<?= base_url('uploads/produk/'.$item->gambar_produk); ?>" 
-                                   style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px; border: 1px solid #444;">
-                          <?php endif; ?>
-                          <?= htmlspecialchars($item->nama_produk); ?>
-                      </div>
-                  </td>
-                  <td class="text-center"><?= $item->jumlah; ?></td>
-                  <td class="text-end">
-                    Rp <?= number_format($item->harga_satuan, 0, ',', '.'); ?>
-                  </td>
-                  <td class="text-end">
-                    Rp <?= number_format($item->subtotal, 0, ',', '.'); ?>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="d-flex justify-content-between mt-3">
-          <strong>Total Belanja</strong>
-          <strong>
-            Rp <?= number_format($pesanan->total_harga, 0, ',', '.'); ?>
-          </strong>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-        
-      <div class="card bg-dark text-light pixel-card p-4">
-        <h5 class="mb-3">Pembayaran</h5>
-        
-        <?php 
-            $last_timeline = !empty($timeline) ? end($timeline) : null;
-            if ($last_timeline && strpos(strtolower($last_timeline->status_tahap), 'ditolak') !== false): 
-        ?>
-            <div class="alert alert-danger mb-3" style="border: 2px solid #ff4444; background: rgba(255,0,0,0.2); color: #ffadad;">
-                <i class="fas fa-exclamation-circle"></i> <strong>Pembayaran Ditolak!</strong><br>
-                <small>Alasan: <?= $last_timeline->catatan; ?></small>
-            </div>
-        <?php endif; ?>
-
-
-        <?php if ($pesanan->metode_pembayaran === 'transfer'): ?>
-
-            <?php if (in_array($pesanan->status_pesanan, ['dibuat', 'menunggu_pembayaran'])): ?>
-              <div class="alert alert-warning text-dark mb-3">
-                <small>Silakan transfer ke rekening:<br>
-                <strong>BCA 1234567890</strong> a.n Zettarig<br>
-                Lalu upload bukti transfer di bawah ini.</small>
-              </div>
-
-              <a href="<?= base_url('pembayaran/upload/'.$pesanan->id_penjualan); ?>"
-                 class="btn btn-warning w-100 mb-3 pixel-btn">
-                 UPLOAD BUKTI FULL
-              </a>
-            <?php endif; ?>
-
-            <?php if ($pesanan->status_pesanan === 'menunggu_verifikasi'): ?>
-              <div class="alert alert-info text-dark">
-                <i class="fas fa-clock"></i> Bukti transfer sudah dikirim.<br>
-                Silakan menunggu verifikasi dari admin.
-              </div>
-            <?php endif; ?>
-
-        <?php elseif ($pesanan->metode_pembayaran === 'cod'): ?>
-            
-            <div class="mb-3 border-bottom border-secondary pb-3">
-                <p class="mb-1 text-muted small">Metode Bayar:</p>
-                <strong>Cash On Delivery (COD)</strong>
-            </div>
-
-            <?php if (isset($cod) && $cod->dp_wajib > 0): ?>
+            <div class="col-lg-8">
                 
-                <div class="alert alert-dark border border-warning text-warning mb-3">
-                    <small>
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Pesanan > 5 Juta wajib DP 20%.
-                    </small>
+                <div class="pixel-card bg-dark p-4 mb-4">
+                    <h5 class="pixel-font text-white mb-4 border-bottom border-secondary pb-2">
+                        <i class="fas fa-box-open me-2 text-primary"></i> ACQUIRED ITEMS
+                    </h5>
+
+                    <div class="d-flex flex-column gap-3">
+                        <?php foreach ($detail as $item): ?>
+                            <div class="d-flex align-items-center border border-secondary p-2 bg-black">
+                                <div class="bg-white p-1 me-3" style="width: 60px; height: 60px;">
+                                    <?php if(!empty($item->gambar_produk)): ?>
+                                        <img src="<?= base_url('assets/uploads/produk/'.$item->gambar_produk); ?>" 
+                                             class="w-100 h-100 object-fit-cover">
+                                    <?php else: ?>
+                                        <div class="w-100 h-100 bg-secondary"></div>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="flex-grow-1">
+                                    <h6 class="text-white pixel-font mb-1" style="font-size: 0.8rem;">
+                                        <?= htmlspecialchars($item->nama_produk); ?>
+                                    </h6>
+                                    <div class="text-secondary" style="font-family: 'VT323'; font-size: 1.1rem;">
+                                        <?= $item->jumlah; ?> x Rp <?= number_format($item->harga_satuan, 0, ',', '.'); ?>
+                                    </div>
+                                </div>
+
+                                <div class="text-end">
+                                    <span class="text-white fw-bold font-monospace">
+                                        Rp <?= number_format($item->subtotal, 0, ',', '.'); ?>
+                                    </span>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top border-secondary d-flex justify-content-between align-items-center">
+                        <span class="pixel-font text-white">TOTAL VALUE</span>
+                        <span class="text-warning display-6 fw-bold" style="font-family: 'VT323';">
+                            Rp <?= number_format($pesanan->total_harga, 0, ',', '.'); ?>
+                        </span>
+                    </div>
                 </div>
 
-                <ul class="list-group list-group-flush bg-transparent mb-3 text-small">
-                    <li class="list-group-item bg-transparent text-light d-flex justify-content-between px-0 py-1">
-                        <span>Wajib DP (20%)</span>
-                        <span class="text-warning">Rp <?= number_format($cod->dp_wajib, 0, ',', '.'); ?></span>
-                    </li>
-                    <li class="list-group-item bg-transparent text-light d-flex justify-content-between px-0 py-1">
-                        <span>Sisa (Bayar Kurir)</span>
-                        <span>Rp <?= number_format($cod->sisa_pembayaran, 0, ',', '.'); ?></span>
-                    </li>
-                </ul>
-
-                <?php if ($cod->status_dp === 'diterima'): ?>
+                <?php if (!empty($timeline)): ?>
+                <div class="pixel-card bg-dark p-4">
+                    <h5 class="pixel-font text-white mb-4 border-bottom border-secondary pb-2">
+                        <i class="fas fa-history me-2 text-info"></i> MISSION HISTORY
+                    </h5>
                     
-                    <div class="alert alert-success text-dark">
-                        <i class="fas fa-check-circle"></i> DP Lunas. Pesanan Diproses.
+                    <div class="position-relative ps-3 border-start border-secondary">
+                        <?php foreach ($timeline as $log): ?>
+                            <div class="mb-4 position-relative">
+                                <div class="position-absolute top-0 start-0 translate-middle bg-<?= ($log->status_tahap == $pesanan->status_pesanan) ? 'success' : 'secondary'; ?> rounded-circle border border-dark" 
+                                     style="width: 12px; height: 12px; left: -1px;"></div>
+                                
+                                <div class="ms-3">
+                                    <span class="text-white pixel-font d-block" style="font-size: 0.7rem;">
+                                        <?= strtoupper(str_replace('_', ' ', $log->status_tahap)); ?>
+                                    </span>
+                                    <small class="text-secondary font-monospace d-block">
+                                        <?= date('d/m/Y H:i', strtotime($log->waktu)); ?>
+                                    </small>
+                                    <?php if(!empty($log->catatan)): ?>
+                                        <div class="text-light mt-1 p-2 bg-secondary bg-opacity-25 border border-secondary" style="font-family: 'VT323'; font-size: 1.1rem;">
+                                            > <?= $log->catatan; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
-
-                <?php elseif ($cod->status_dp === 'menunggu' && !empty($cod->bukti_dp)): ?>
-                    
-                    <div class="alert alert-info text-dark">
-                        <i class="fas fa-spinner fa-spin"></i> Bukti DP sedang diverifikasi.
-                    </div>
-
-                <?php else: ?>
-                    <div class="card p-3 bg-secondary mb-3">
-                        <small class="mb-2 d-block">Upload Bukti DP Disini:</small>
-                        
-                        <form action="<?= base_url('pembayaran/process_dp'); ?>" method="post" enctype="multipart/form-data">
-                            <input type="hidden" name="id_penjualan" value="<?= $pesanan->id_penjualan; ?>">
-                            
-                            <input type="file" name="bukti_dp" class="form-control form-control-sm mb-2" required>
-                            
-                            <button type="submit" class="btn btn-warning btn-sm w-100 pixel-btn">
-                                KIRIM BUKTI DP
-                            </button>
-                        </form>
-                    </div>
-
+                </div>
                 <?php endif; ?>
 
-            <?php else: ?>
-                <div class="alert alert-success text-dark">
-                    <i class="fas fa-truck"></i> Pesanan COD Siap Dikirim.<br>
-                    Siapkan uang tunai saat kurir datang.
-                </div>
-            <?php endif; ?>
-
-        <?php endif; ?>
-
-
-        <?php if ($pesanan->status_pesanan === 'diproses'): ?>
-            <div class="alert alert-success text-dark mt-3">
-                <i class="fas fa-box"></i> Pesanan sedang dikemas.
             </div>
-        <?php endif; ?>
 
-        <hr class="bg-secondary mt-4">
-        
-        <a href="<?= base_url('akun/pesanan'); ?>" class="btn btn-outline-light w-100 pixel-btn">
-          ← KEMBALI
-        </a>
-      </div>
+            <div class="col-lg-4">
+                
+                <div class="pixel-card bg-white p-4 sticky-top" style="top: 20px;">
+                    <h5 class="pixel-font text-dark mb-4 border-bottom border-dark pb-2">
+                        PAYMENT DATA
+                    </h5>
+
+                    <?php 
+                        $last_log = !empty($timeline) ? end($timeline) : null;
+                        if ($last_log && strpos(strtolower($last_log->status_tahap), 'ditolak') !== false): 
+                    ?>
+                        <div class="alert alert-danger rounded-0 border-2 border-danger mb-4">
+                            <h6 class="pixel-font mb-1"><i class="fas fa-ban me-2"></i> REJECTED</h6>
+                            <small style="font-family: 'VT323'; font-size: 1.1rem;">
+                                Alasan: <?= $last_log->catatan; ?>
+                            </small>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($pesanan->metode_pembayaran === 'transfer'): ?>
+                        
+                        <div class="bg-dark p-3 mb-4 text-white">
+                            <small class="text-secondary d-block mb-1">METODE:</small>
+                            <span class="pixel-font text-warning">BANK TRANSFER</span>
+                            
+                            <hr class="border-secondary my-2">
+                            
+                            <small class="text-secondary d-block">REKENING TUJUAN:</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span style="font-family: 'VT323'; font-size: 1.3rem;">BCA 1234567890</span>
+                                <button class="btn btn-sm btn-outline-light py-0" onclick="navigator.clipboard.writeText('1234567890')">Copy</button>
+                            </div>
+                            <small class="d-block mt-1">a.n Zettarig Corp</small>
+                        </div>
+
+                        <?php if (in_array($pesanan->status_pesanan, ['dibuat', 'menunggu_pembayaran'])): ?>
+                            
+                            <form action="<?= base_url('pembayaran/process_upload'); ?>" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="id_penjualan" value="<?= $pesanan->id_penjualan; ?>">
+                                
+                                <div class="mb-3">
+                                    <label class="pixel-font text-dark mb-2" style="font-size: 0.7rem;">UPLOAD PROOF</label>
+                                    <input type="file" name="bukti_bayar" class="form-control rounded-0 border-dark" required>
+                                    <small class="text-muted" style="font-size: 0.7rem;">Format: JPG/PNG, Max 2MB</small>
+                                </div>
+
+                                <button type="submit" class="pixel-btn w-100 text-center py-2 bg-warning text-dark border-dark">
+                                    <i class="fas fa-upload me-2"></i> SEND EVIDENCE
+                                </button>
+                            </form>
+
+                        <?php elseif ($pesanan->status_pesanan === 'menunggu_verifikasi'): ?>
+                            <div class="alert alert-info rounded-0 border-dark text-dark">
+                                <i class="fas fa-hourglass-half me-2"></i> Bukti sedang diverifikasi admin.
+                            </div>
+                        <?php endif; ?>
+
+
+                    <?php elseif ($pesanan->metode_pembayaran === 'cod'): ?>
+
+                        <div class="bg-dark p-3 mb-4 text-white">
+                            <small class="text-secondary d-block mb-1">METODE:</small>
+                            <span class="pixel-font text-info">C.O.D (CASH ON DELIVERY)</span>
+                            
+                            <?php if (isset($cod) && $cod->dp_wajib > 0): ?>
+                                <hr class="border-secondary my-2">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-secondary">Wajib DP (20%)</span>
+                                    <span class="text-warning">Rp <?= number_format($cod->dp_wajib, 0, ',', '.'); ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-secondary">Sisa Bayar</span>
+                                    <span class="text-white">Rp <?= number_format($cod->sisa_pembayaran, 0, ',', '.'); ?></span>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if (isset($cod) && $cod->status_dp === 'menunggu'): ?>
+                            
+                            <?php if (!empty($cod->bukti_dp)): ?>
+                                <div class="alert alert-info rounded-0 border-dark text-dark">
+                                    <i class="fas fa-search me-2"></i> Bukti DP sedang dicek.
+                                </div>
+                            <?php else: ?>
+                                <form action="<?= base_url('pembayaran/process_dp'); ?>" method="post" enctype="multipart/form-data">
+                                    <input type="hidden" name="id_penjualan" value="<?= $pesanan->id_penjualan; ?>">
+                                    
+                                    <div class="mb-3">
+                                        <label class="pixel-font text-dark mb-2" style="font-size: 0.7rem;">UPLOAD DP PROOF</label>
+                                        <input type="file" name="bukti_dp" class="form-control rounded-0 border-dark" required>
+                                    </div>
+
+                                    <button type="submit" class="pixel-btn w-100 text-center py-2 bg-info text-dark border-dark">
+                                        <i class="fas fa-upload me-2"></i> SEND DP PROOF
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+
+                        <?php elseif (isset($cod) && $cod->status_dp === 'diterima'): ?>
+                            <div class="alert alert-success rounded-0 border-dark text-dark">
+                                <i class="fas fa-check-circle me-2"></i> DP Lunas. Barang akan dikirim.
+                            </div>
+                        <?php endif; ?>
+
+                    <?php endif; ?>
+
+                    <hr class="border-dark my-4">
+
+                    <a href="<?= base_url('akun/pesanan'); ?>" class="btn btn-outline-dark w-100 rounded-0 pixel-font" style="font-size: 0.7rem;">
+                        < [ESC] BACK TO LIST
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
 
     </div>
-  </div>
-
 </section>

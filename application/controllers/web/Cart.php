@@ -6,14 +6,13 @@ class Cart extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-
         $this->load->library(['cart', 'session']);
         $this->load->model('Produk_model');
         $this->load->helper('url');
     }
 
     // ==================================================
-    // HALAMAN CART (WAJIB LOGIN)
+    // HALAMAN CART
     // ==================================================
     public function index()
     {
@@ -28,33 +27,19 @@ class Cart extends CI_Controller
     }
 
     // ==================================================
-    // TAMBAH KE CART (WAJIB LOGIN)
+    // TAMBAH KE CART (FIXED: MENYIMPAN SLUG)
     // ==================================================
     public function add($slug)
     {
-        // ===============================
-        // PROTEKSI LOGIN
-        // ===============================
+        // 1. Cek Login
         if (!$this->session->userdata('customer_logged_in')) {
-
-            // ⛔ WAJIB userdata (bukan flashdata)
-            $this->session->set_userdata(
-                'redirect_after_login',
-                current_url()
-            );
-
-            $this->session->set_flashdata(
-                'error',
-                'Silakan login terlebih dahulu untuk menambahkan produk ke keranjang.'
-            );
-
+            $this->session->set_userdata('redirect_after_login', current_url());
+            $this->session->set_flashdata('error', 'Silakan login terlebih dahulu.');
             redirect('auth/login');
             return;
         }
 
-        // ===============================
-        // AMBIL PRODUK
-        // ===============================
+        // 2. Ambil Data Produk
         $produk = $this->Produk_model->get_by_slug($slug);
 
         if (!$produk || !$produk->status_aktif) {
@@ -62,51 +47,106 @@ class Cart extends CI_Controller
             return;
         }
 
-        // ===============================
-        // CEK STOK
-        // ===============================
+        // 3. Cek Stok
         if ($produk->stok <= 0) {
             $this->session->set_flashdata('error', 'Stok produk habis.');
             redirect('produk/'.$slug);
             return;
         }
 
-        // ===============================
-        // INSERT KE CART
-        // ===============================
-        $this->cart->insert([
+        // 4. Masukkan ke Keranjang (DENGAN SLUG DI OPTIONS)
+        $data = [
             'id'      => $produk->id_produk,
             'qty'     => 1,
             'price'   => $produk->harga_jual,
             'name'    => $produk->nama_produk,
             'options' => [
-                'slug' => $produk->slug_produk
+                'gambar' => $produk->gambar_produk,
+                'brand'  => $produk->nama_brand,
+                'slug'   => $produk->slug_produk  // <--- PENTING: SLUG DISIMPAN DI SINI
             ]
-        ]);
+        ];
 
-        $this->session->set_flashdata(
-            'success',
-            'Produk berhasil ditambahkan ke keranjang.'
-        );
+        $this->cart->insert($data);
 
+        $this->session->set_flashdata('success', 'Hardware ditambahkan ke inventory.');
         redirect('cart');
     }
 
     // ==================================================
-    // UPDATE CART
+    // BELI LANGSUNG (BUY NOW)
+    // ==================================================
+    public function buy($slug)
+    {
+        if (!$this->session->userdata('customer_logged_in')) {
+            $this->session->set_userdata('redirect_after_login', 'checkout');
+            redirect('auth/login');
+            return;
+        }
+
+        $produk = $this->Produk_model->get_by_slug($slug);
+
+        if ($produk && $produk->stok > 0) {
+            $data = [
+                'id'      => $produk->id_produk,
+                'qty'     => 1,
+                'price'   => $produk->harga_jual,
+                'name'    => $produk->nama_produk,
+                'options' => [
+                    'gambar' => $produk->gambar_produk,
+                    'brand'  => $produk->nama_brand,
+                    'slug'   => $produk->slug_produk // <--- PENTING
+                ]
+            ];
+            $this->cart->insert($data);
+            redirect('checkout');
+        } else {
+            redirect('produk/'.$slug);
+        }
+    }
+
+    // ==================================================
+    // UPDATE CART (DENGAN VALIDASI STOK)
     // ==================================================
     public function update()
     {
         if (!$this->session->userdata('customer_logged_in')) {
             redirect('auth/login');
-            return;
         }
 
-        foreach ($this->input->post('cart') as $rowid => $item) {
-            $this->cart->update([
-                'rowid' => $rowid,
-                'qty'   => (int) $item['qty']
-            ]);
+        $rowid = $this->input->post('rowid');
+        $qty   = (int) $this->input->post('qty');
+
+        // 1. Ambil Data Item di Cart saat ini
+        $cart_item = $this->cart->get_item($rowid);
+
+        if ($cart_item && $qty > 0) {
+            
+            // 2. Ambil Stok Real-time dari Database
+            // Pastikan model Produk_model memiliki fungsi get_by_id
+            $produk_db = $this->Produk_model->get_by_id($cart_item['id']);
+
+            if ($produk_db) {
+                // 3. Cek apakah Quantity melebihi Stok
+                if ($qty > $produk_db->stok) {
+                    
+                    // Kena Limit: Set qty jadi maksimal stok yang ada
+                    $qty = $produk_db->stok; 
+                    
+                    $this->session->set_flashdata(
+                        'error', 
+                        'Stok tidak mencukupi. Maksimal: ' . $produk_db->stok . ' unit.'
+                    );
+                } else {
+                    $this->session->set_flashdata('success', 'Keranjang diperbarui.');
+                }
+
+                // 4. Update Cart
+                $this->cart->update([
+                    'rowid' => $rowid,
+                    'qty'   => $qty
+                ]);
+            }
         }
 
         redirect('cart');
@@ -117,11 +157,8 @@ class Cart extends CI_Controller
     // ==================================================
     public function remove($rowid)
     {
-        if (!$this->session->userdata('customer_logged_in')) {
-            redirect('auth/login');
-            return;
-        }
-
+        if (!$this->session->userdata('customer_logged_in')) redirect('auth/login');
+        
         $this->cart->remove($rowid);
         redirect('cart');
     }
