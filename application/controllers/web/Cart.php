@@ -63,11 +63,18 @@ class Cart extends CI_Controller
             'options' => [
                 'gambar' => $produk->gambar_produk,
                 'brand'  => $produk->nama_brand,
-                'slug'   => $produk->slug_produk  // <--- PENTING: SLUG DISIMPAN DI SINI
+                'slug'   => $produk->slug_produk 
             ]
         ];
 
         $this->cart->insert($data);
+
+        // ===============================
+        // SIMPAN KE DATABASE
+        // ===============================
+        if ($this->session->userdata('customer_logged_in')) {
+            $this->Produk_model->save_cart_to_db($this->session->userdata('customer_id'));
+        }
 
         $this->session->set_flashdata('success', 'Hardware ditambahkan ke inventory.');
         redirect('cart');
@@ -95,10 +102,18 @@ class Cart extends CI_Controller
                 'options' => [
                     'gambar' => $produk->gambar_produk,
                     'brand'  => $produk->nama_brand,
-                    'slug'   => $produk->slug_produk // <--- PENTING
+                    'slug'   => $produk->slug_produk
                 ]
             ];
             $this->cart->insert($data);
+
+            // ===============================
+            // SIMPAN KE DATABASE
+            // ===============================
+            if ($this->session->userdata('customer_logged_in')) {
+                $this->Produk_model->save_cart_to_db($this->session->userdata('customer_id'));
+            }
+
             redirect('checkout');
         } else {
             redirect('produk/'.$slug);
@@ -123,7 +138,6 @@ class Cart extends CI_Controller
         if ($cart_item && $qty > 0) {
             
             // 2. Ambil Stok Real-time dari Database
-            // Pastikan model Produk_model memiliki fungsi get_by_id
             $produk_db = $this->Produk_model->get_by_id($cart_item['id']);
 
             if ($produk_db) {
@@ -146,6 +160,13 @@ class Cart extends CI_Controller
                     'rowid' => $rowid,
                     'qty'   => $qty
                 ]);
+
+                // ===============================
+                // SIMPAN KE DATABASE
+                // ===============================
+                if ($this->session->userdata('customer_logged_in')) {
+                    $this->Produk_model->save_cart_to_db($this->session->userdata('customer_id'));
+                }
             }
         }
 
@@ -160,6 +181,14 @@ class Cart extends CI_Controller
         if (!$this->session->userdata('customer_logged_in')) redirect('auth/login');
         
         $this->cart->remove($rowid);
+
+        // ===============================
+        // SIMPAN KE DATABASE (UPDATE HAPUS)
+        // ===============================
+        if ($this->session->userdata('customer_logged_in')) {
+            $this->Produk_model->save_cart_to_db($this->session->userdata('customer_id'));
+        }
+
         redirect('cart');
     }
 }

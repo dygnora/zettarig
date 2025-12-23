@@ -211,15 +211,6 @@
                         </div>
 
                         <div class="bg-dark p-3 mb-4 border border-secondary">
-                            <div class="d-flex justify-content-between text-secondary mb-1" style="font-family: 'VT323'; font-size: 1.1rem;">
-                                <span>Subtotal</span>
-                                <span>Rp <?= number_format($this->cart->total(), 0, ',', '.'); ?></span>
-                            </div>
-                            <div class="d-flex justify-content-between text-secondary mb-2" style="font-family: 'VT323'; font-size: 1.1rem;">
-                                <span>Shipping Fee</span>
-                                <span class="text-success">GRATIS</span>
-                            </div>
-                            <hr class="border-secondary my-2">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="pixel-font text-white" style="font-size: 0.8rem;">TOTAL</span>
                                 <span class="text-warning fw-bold display-6" style="font-family: 'VT323';">

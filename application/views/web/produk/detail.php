@@ -116,7 +116,7 @@ $gambar = (!empty($produk->gambar_produk) && file_exists(FCPATH.'assets/uploads/
 
                     <div class="mt-3">
                         <a href="<?= base_url('produk'); ?>" class="text-decoration-none text-muted hover-underline" style="font-family: 'VT323'; font-size: 1.2rem;">
-                            <i class="fas fa-arrow-left me-2"></i> Kembali ke Database
+                            <i class="fas fa-arrow-left me-2"></i> Kembali ke Katalog
                         </a>
                     </div>
 

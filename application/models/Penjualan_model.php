@@ -181,4 +181,24 @@ class Penjualan_model extends CI_Model
 
         return $pesanan;
     }
+
+    // ==================================================
+    // KHUSUS PAGINATION (TAMBAHAN BARU)
+    // ==================================================
+    
+    // 1. Hitung Total Pesanan Customer
+    public function count_by_customer($id_customer)
+    {
+        $this->db->where('id_customer', $id_customer);
+        return $this->db->count_all_results('penjualan');
+    }
+
+    // 2. Ambil Data Pesanan dengan Limit & Offset
+    public function get_paged_by_customer($id_customer, $limit, $start)
+    {
+        $this->db->where('id_customer', $id_customer);
+        $this->db->order_by('tanggal_pesanan', 'DESC');
+        $this->db->limit($limit, $start);
+        return $this->db->get('penjualan')->result();
+    }
 }
