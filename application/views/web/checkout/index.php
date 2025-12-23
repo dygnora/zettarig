@@ -167,18 +167,30 @@
                             </div>
 
                             <div class="col-md-6">
-                                <input type="radio" class="payment-radio" name="metode_pembayaran" id="payCOD" value="cod">
-                                <label class="pixel-option" for="payCOD">
-                                    <i class="fas fa-check-circle check-indicator"></i>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="fas fa-hand-holding-usd fa-2x me-3 text-secondary"></i>
-                                        <span class="pixel-font" style="font-size: 0.8rem;">C.O.D (DP)</span>
-                                    </div>
-                                    <small class="d-block" style="font-family: 'VT323'; font-size: 1.1rem;">
-                                        > BAYAR DITEMPAT<br>> WAJIB DP ONGKIR
-                                    </small>
-                                </label>
-                            </div>
+    <input type="radio" class="payment-radio" name="metode_pembayaran" id="payCOD" value="cod">
+    <label class="pixel-option" for="payCOD">
+        <i class="fas fa-check-circle check-indicator"></i>
+        <div class="d-flex align-items-center mb-2">
+            <i class="fas fa-hand-holding-usd fa-2x me-3 text-secondary"></i>
+            <span class="pixel-font" style="font-size: 0.8rem;">C.O.D (DP)</span>
+        </div>
+        
+        <small class="d-block" style="font-family: 'VT323'; font-size: 1.1rem;">
+            > BAYAR DITEMPAT<br>
+            
+            <?php 
+                // LOGIKA: Tampilkan syarat DP hanya jika total > 5.000.000
+                $threshold_cod = 5000000;
+                if ($this->cart->total() > $threshold_cod): 
+            ?>
+                <span class="text-warning">> WAJIB DP ONGKIR (20%)</span>
+            <?php else: ?>
+                <span class="text-success">> TANPA DP</span>
+            <?php endif; ?>
+            
+        </small>
+    </label>
+</div>
 
                         </div>
                     </div>
