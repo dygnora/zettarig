@@ -162,7 +162,6 @@
                 <div class="pixel-heading">SHORTCUTS</div>
                 <nav class="d-flex flex-column">
                     <a href="<?= base_url('produk') ?>" class="pixel-link">ITEM SHOP</a>
-                    <a href="<?= base_url('rakit') ?>" class="pixel-link">BUILD PC</a>
                     <a href="<?= base_url('about') ?>" class="pixel-link">SYSTEM INFO</a>
                     <a href="<?= base_url('akun') ?>" class="pixel-link">PLAYER PROFILE</a>
                 </nav>

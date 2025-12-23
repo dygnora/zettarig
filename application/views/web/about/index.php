@@ -201,7 +201,7 @@ if ($session_user) {
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    const textToType = "Selamat datang di Zettarig. Kami tidak sekadar menjual komponen; kami merakit masa depan pixel demi pixel.";
+    const textToType = "Zettarig adalah platform manajemen penjualan dan perakitan PC yang dirancang untuk mengelola seluruh proses hardware secara terintegrasi. Mulai dari katalog produk, hingga transaksi dan pembayaran, semuanya dikendalikan dalam satu sistem.";
     const typingElement = document.getElementById('typing-text');
     let charIndex = 0;
 

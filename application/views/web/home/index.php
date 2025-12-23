@@ -356,8 +356,9 @@
         <div class="position-relative" style="z-index: 2;">
             <h2 class="pixel-font text-white mb-3">CUSTOM BUILD MISSION</h2>
             <p class="text-white mb-4 fs-5" style="font-family: 'VT323';">
-                Bingung rakit PC? Biarkan expert kami yang mengerjakannya.<br>
-                Mulai dari budget entry-level hingga sultan.
+                Tidak yakin memilih komponen yang tepat?<br>
+                Kami membantu merancang dan merakit PC sesuai kebutuhan dan anggaran Anda.
+
             </p>
             <a href="#" class="pixel-btn bg-white text-dark border-dark">
                 <i class="fas fa-gamepad me-2"></i> START BUILDING
@@ -366,40 +367,193 @@
     </div>
 </section>
 
+<style>
+    /* --- REDESIGN FAQ: TERMINAL STYLE --- */
+    .pixel-faq-card {
+        background-color: #0c0c16;
+        border: 2px solid #333;
+        box-shadow: 8px 8px 0px #000;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Header Bar */
+    .pixel-window-header {
+        background: #333;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        border-bottom: 2px solid #000;
+    }
+
+    .window-dots { display: flex; gap: 6px; margin-right: 15px; }
+    .dot { width: 12px; height: 12px; border: 1px solid #000; }
+    .dot.red { background: #ff5555; }
+    .dot.yellow { background: #ffcc00; }
+    .dot.green { background: #55ff55; }
+
+    /* Accordion Item */
+    .pixel-faq-item {
+        border-bottom: 1px dashed #333;
+        margin-bottom: 5px;
+    }
+
+    /* Tombol FAQ */
+    .pixel-faq-btn {
+        width: 100%;
+        text-align: left;
+        background: transparent;
+        border: none;
+        color: #fff;
+        padding: 15px 20px;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.65rem;
+        line-height: 1.5;
+        position: relative;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        cursor: pointer; /* Pastikan kursor berubah */
+        z-index: 10; /* Pastikan tombol di atas elemen lain */
+    }
+
+    .pixel-faq-btn:hover {
+        background: rgba(0, 255, 255, 0.05);
+        color: #00ffff;
+    }
+
+    /* Indikator Panah */
+    .pixel-faq-btn::before {
+        content: "[+]";
+        margin-right: 15px;
+        color: #ff00de;
+        font-family: 'VT323', monospace;
+        font-size: 1.2rem;
+        min-width: 25px;
+    }
+
+    /* State saat terbuka (Tidak ada class .collapsed) */
+    .pixel-faq-btn:not(.collapsed)::before {
+        content: "[-]";
+        color: #00ffff;
+    }
+
+    .pixel-faq-btn:not(.collapsed) {
+        color: #00ffff;
+        background: rgba(0, 255, 255, 0.1);
+    }
+
+    /* Isi Jawaban */
+    .pixel-faq-body {
+        background: #050505;
+        color: #aaaaaa;
+        font-family: 'VT323', monospace;
+        font-size: 1.2rem;
+        padding: 15px 20px 20px 55px;
+        border-left: 2px solid #333;
+        margin-left: 20px;
+        margin-bottom: 10px;
+    }
+
+    .cmd-prefix { color: #00ff00; margin-right: 10px; }
+</style>
+
 <section class="container py-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="pixel-card bg-dark p-4">
-                <div class="border-bottom border-secondary pb-2 mb-4">
-                    <i class="fas fa-terminal text-success me-2"></i> <span class="text-success">root@zettarig:~/faq#</span> ./read_faq.exe
+        <div class="col-lg-9">
+            
+            <div class="text-center mb-5">
+                <h2 class="pixel-font text-white glitch-text" data-text="SYSTEM KNOWLEDGE BASE">SYSTEM KNOWLEDGE BASE</h2>
+                <p class="text-secondary" style="font-family: 'VT323'; font-size: 1.2rem;">
+                    // Common errors and solutions database
+                </p>
+            </div>
+
+            <div class="pixel-faq-card">
+                
+                <div class="pixel-window-header">
+                    <div class="window-dots">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div>
+                    </div>
+                    <div class="pixel-font text-white" style="font-size: 0.7rem;">
+                        C:\ZETTARIG\FAQ.EXE
+                    </div>
                 </div>
 
-                <div class="accordion accordion-flush" id="faqZetta">
-                    
-                    <div class="accordion-item bg-transparent border-0 mb-3">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed bg-transparent text-white shadow-none px-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                                <span class="text-warning me-2">></span> Apakah barang bergaransi resmi?
-                            </button>
-                        </h2>
-                        <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqZetta">
-                            <div class="accordion-body text-secondary pt-0 ps-4" style="font-family: 'VT323'; font-size: 1.1rem;">
-                                Tentu saja. Semua komponen yang kami jual bersumber dari distributor resmi Indonesia (Astrindo, WPG, NJT, dll). Claim garansi bisa kami bantu.
+                <div class="accordion accordion-flush p-2" id="faqZetta">
+
+                    <div class="pixel-faq-item">
+                        <button class="pixel-faq-btn collapsed" type="button" 
+                                data-toggle="collapse" data-target="#faq1" 
+                                aria-expanded="false">
+                            APAKAH PRODUK DIJAMIN ORIGINAL & BERGARANSI?
+                        </button>
+                        <div id="faq1" class="collapse" data-parent="#faqZetta">
+                            <div class="pixel-faq-body">
+                                <span class="cmd-prefix">root@response:~#</span>
+                                Tentu saja. 100% komponen yang kami rakit bersumber dari distributor resmi Indonesia (Astrindo, WPG, NJT, dll). <br><br>
+                                Anda akan mendapatkan box asli komponen dan kartu garansi.
                             </div>
                         </div>
                     </div>
 
-                    <div class="accordion-item bg-transparent border-0 mb-3">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed bg-transparent text-white shadow-none px-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                                <span class="text-warning me-2">></span> Berapa lama proses perakitan?
-                            </button>
-                        </h2>
-                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqZetta">
-                            <div class="accordion-body text-secondary pt-0 ps-4" style="font-family: 'VT323'; font-size: 1.1rem;">
-                                Untuk PC Standard: 1-2 hari kerja.<br>
-                                Untuk PC Custom Watercooling: 3-5 hari kerja.<br>
-                                Kami melakukan stress-test 1x24 jam sebelum dikirim.
+                    <div class="pixel-faq-item">
+                        <button class="pixel-faq-btn collapsed" type="button" 
+                                data-toggle="collapse" data-target="#faq2" 
+                                aria-expanded="false">
+                            BERAPA ESTIMASI WAKTU PERAKITAN PC?
+                        </button>
+                        <div id="faq2" class="collapse" data-parent="#faqZetta">
+                            <div class="pixel-faq-body">
+                                <span class="cmd-prefix">root@response:~#</span>
+                                Waktu eksekusi bervariasi:<br>
+                                - <strong>Standard Build:</strong> 1-2 hari kerja.<br>
+                                - <strong>Custom Loop:</strong> 3-5 hari kerja.<br>
+                                Setiap PC wajib melewati proses Stress Test & QC (1x24 Jam).
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pixel-faq-item">
+                        <button class="pixel-faq-btn collapsed" type="button" 
+                                data-toggle="collapse" data-target="#faq3" 
+                                aria-expanded="false">
+                            APAKAH PENGIRIMAN LUAR KOTA AMAN?
+                        </button>
+                        <div id="faq3" class="collapse" data-parent="#faqZetta">
+                            <div class="pixel-faq-body">
+                                <span class="cmd-prefix">root@response:~#</span>
+                                Sangat aman. Kami menggunakan protokol Secure Packaging Lv.3 (Styrofoam, Bubble Wrap Tebal, Packing Kayu). Garansi asuransi pengiriman tersedia.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pixel-faq-item">
+                        <button class="pixel-faq-btn collapsed" type="button" 
+                                data-toggle="collapse" data-target="#faq4" 
+                                aria-expanded="false">
+                            APA METODE PEMBAYARAN YANG TERSEDIA?
+                        </button>
+                        <div id="faq4" class="collapse" data-parent="#faqZetta">
+                            <div class="pixel-faq-body">
+                                <span class="cmd-prefix">root@response:~#</span>
+                                Kami menerima Bank Transfer (Verifikasi Otomatis) dan COD (Bayar Ditempat) dengan syarat DP Ongkir khusus.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pixel-faq-item" style="border-bottom: none;">
+                        <button class="pixel-faq-btn collapsed" type="button" 
+                                data-toggle="collapse" data-target="#faq5" 
+                                aria-expanded="false">
+                            BISA KONSULTASI SPESIFIKASI SEBELUM BELI?
+                        </button>
+                        <div id="faq5" class="collapse" data-parent="#faqZetta">
+                            <div class="pixel-faq-body">
+                                <span class="cmd-prefix">root@response:~#</span>
+                                Akses diizinkan! Tim teknis kami siap membantu meracik spesifikasi sesuai budget. Silakan hubungi kami via WhatsApp.
                             </div>
                         </div>
                     </div>
@@ -409,3 +563,47 @@
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Ambil semua tombol FAQ
+    const faqButtons = document.querySelectorAll('.pixel-faq-btn');
+
+    faqButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            // Mencegah konflik event jika Bootstrap sudah jalan
+            // Tapi jika Bootstrap tidak jalan, script ini akan menghandle
+
+            const targetId = this.getAttribute('data-target') || this.getAttribute('data-bs-target');
+            const targetContent = document.querySelector(targetId);
+            
+            // Cek apakah bootstrap native sudah menghandle class 'show'
+            // Jika tidak (karena versi JS beda), kita handle manual
+            if (!targetContent.classList.contains('collapsing')) {
+                const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                
+                // Toggle Class Tombol
+                if (isExpanded) {
+                    this.classList.add('collapsed');
+                    this.setAttribute('aria-expanded', 'false');
+                    targetContent.classList.remove('show');
+                } else {
+                    // Tutup yang lain dulu (Accordion behavior)
+                    document.querySelectorAll('.pixel-faq-btn').forEach(b => {
+                        b.classList.add('collapsed');
+                        b.setAttribute('aria-expanded', 'false');
+                    });
+                    document.querySelectorAll('.collapse').forEach(c => {
+                        c.classList.remove('show');
+                    });
+
+                    // Buka yang diklik
+                    this.classList.remove('collapsed');
+                    this.setAttribute('aria-expanded', 'true');
+                    targetContent.classList.add('show');
+                }
+            }
+        });
+    });
+});
+</script>
