@@ -73,6 +73,21 @@ class Produk extends CI_Controller
         $this->load->view('web/layout/template', $data);
     }
 
+    public function kategori($slug = null)
+{
+    if (!$slug) show_404();
+
+    // Ambil kategori berdasarkan slug
+    $kategori = $this->Kategori_model->get_by_slug($slug);
+    if (!$kategori) show_404();
+
+    // Redirect ke katalog dengan filter kategori
+    redirect(
+        'produk?q=&kategori='.$kategori->id_kategori.'&min_price=&max_price='
+    );
+}
+
+
     public function detail($slug = null)
     {
         if (!$slug) show_404();
@@ -86,4 +101,6 @@ class Produk extends CI_Controller
 
         $this->load->view('web/layout/template', $data);
     }
+
+    
 }

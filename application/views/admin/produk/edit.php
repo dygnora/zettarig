@@ -87,6 +87,14 @@
                    required>
           </div>
 
+          <div class="form-group">
+            <label>Deskripsi Produk</label>
+            <textarea name="deskripsi" 
+                      class="form-control" 
+                      rows="5" 
+                      placeholder="Masukkan spesifikasi teknis dan detail produk..."><?= htmlspecialchars($produk->deskripsi); ?></textarea>
+          </div>
+
           <!-- ===============================
                STOK (READONLY)
                =============================== -->
@@ -107,7 +115,7 @@
             <label>Gambar Produk</label>
 
             <?php
-              $gambar_default = base_url('assets/uploads/produk/default.png');
+              $gambar_default = base_url('assets/images/no-image.png');
               $gambar_produk  = !empty($produk->gambar_produk)
                 ? base_url('assets/uploads/produk/'.$produk->gambar_produk)
                 : $gambar_default;

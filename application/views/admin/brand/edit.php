@@ -54,7 +54,7 @@
             <?php
               $logo_lama = !empty($brand->logo)
                 ? base_url('assets/uploads/brand/'.$brand->logo)
-                : base_url('assets/uploads/brand/default.png');
+                : base_url('assets/images/no-image.png');
             ?>
 
             <div class="mb-2">

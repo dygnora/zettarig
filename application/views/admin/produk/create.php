@@ -85,6 +85,14 @@
                    required>
           </div>
 
+          <div class="form-group">
+            <label>Deskripsi Produk</label>
+            <textarea name="deskripsi" 
+                      class="form-control" 
+                      rows="5" 
+                      placeholder="Masukkan spesifikasi teknis dan detail produk..."></textarea>
+          </div>
+
           <!-- ===============================
                STOK AWAL (READONLY)
                =============================== -->
@@ -106,7 +114,7 @@
 
             <div class="mb-2">
               <img id="preview-gambar"
-                   src="<?= base_url('assets/uploads/produk/default.png'); ?>"
+                   src="<?= base_url('assets/images/no-image.png'); ?>"
                    class="img-thumbnail"
                    style="max-height:120px"
                    onerror="this.src='<?= base_url('assets/uploads/produk/default.png'); ?>'">

@@ -235,9 +235,15 @@
     <form action="<?= base_url('auth/login/process'); ?>" method="post">
 
       <div class="mb-3">
-        <label style="font-family: 'VT323', monospace; font-size: 1.2rem; color: #00ffff;">EMAIL ACCESS</label>
-        <input type="email" name="email" class="form-control rounded-0 bg-dark text-white border-secondary" style="border-top: 2px solid #00ffff;" required>
-      </div>
+    <label style="font-family: 'VT323', monospace; font-size: 1.2rem; color: #00ffff;">USERNAME (CALLSIGN)</label>
+    
+    <input type="text" 
+           name="username" 
+           class="form-control rounded-0 bg-dark text-white border-secondary" 
+           style="border-top: 2px solid #00ffff;" 
+           placeholder="Ex: Maverick"
+           required>
+</div>
 
       <div class="mb-1">
         <label style="font-family: 'VT323', monospace; font-size: 1.2rem; color: #ff00de;">PASSCODE</label>

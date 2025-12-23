@@ -181,51 +181,76 @@ $warna = $status_color[$pesanan->status_pesanan] ?? 'light';
 
                     <?php elseif ($pesanan->metode_pembayaran === 'cod'): ?>
 
-                        <div class="bg-dark p-3 mb-4 text-white">
-                            <small class="text-secondary d-block mb-1">METODE:</small>
-                            <span class="pixel-font text-info">C.O.D (CASH ON DELIVERY)</span>
-                            
-                            <?php if (isset($cod) && $cod->dp_wajib > 0): ?>
-                                <hr class="border-secondary my-2">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="text-secondary">Wajib DP (20%)</span>
-                                    <span class="text-warning">Rp <?= number_format($cod->dp_wajib, 0, ',', '.'); ?></span>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span class="text-secondary">Sisa Bayar</span>
-                                    <span class="text-white">Rp <?= number_format($cod->sisa_pembayaran, 0, ',', '.'); ?></span>
-                                </div>
-                            <?php endif; ?>
-                        </div>
+    <div class="bg-dark p-3 mb-4 text-white">
+        <small class="text-secondary d-block mb-1">METODE:</small>
+        <span class="pixel-font text-info">C.O.D (CASH ON DELIVERY)</span>
+        
+        <?php if (isset($cod) && $cod->dp_wajib > 0): ?>
+            <hr class="border-secondary my-2">
+            <div class="d-flex justify-content-between mb-1">
+                <span class="text-secondary">Wajib DP (20%)</span>
+                <span class="text-warning">Rp <?= number_format($cod->dp_wajib, 0, ',', '.'); ?></span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="text-secondary">Sisa Bayar</span>
+                <span class="text-white">Rp <?= number_format($cod->sisa_pembayaran, 0, ',', '.'); ?></span>
+            </div>
+        <?php endif; ?>
+    </div>
 
-                        <?php if (isset($cod) && $cod->status_dp === 'menunggu'): ?>
-                            
-                            <?php if (!empty($cod->bukti_dp)): ?>
-                                <div class="alert alert-info rounded-0 border-dark text-dark">
-                                    <i class="fas fa-search me-2"></i> Bukti DP sedang dicek.
-                                </div>
-                            <?php else: ?>
-                                <form action="<?= base_url('pembayaran/process_dp'); ?>" method="post" enctype="multipart/form-data">
-                                    <input type="hidden" name="id_penjualan" value="<?= $pesanan->id_penjualan; ?>">
-                                    
-                                    <div class="mb-3">
-                                        <label class="pixel-font text-dark mb-2" style="font-size: 0.7rem;">UPLOAD DP PROOF</label>
-                                        <input type="file" name="bukti_dp" class="form-control rounded-0 border-dark" required>
-                                    </div>
+    <?php 
+        // LOGIKA BARU: Cek apakah status Menunggu ATAU Ditolak
+        // Agar form muncul kembali saat ditolak
+        if (isset($cod) && in_array($cod->status_dp, ['menunggu', 'ditolak'])): 
+    ?>
+        
+        <?php 
+            // Cek log terakhir apakah ditolak (untuk flag tampilan)
+            $is_rejected_log = ($last_log && strpos(strtolower($last_log->status_tahap), 'ditolak') !== false);
+            // Form muncul jika: Status database 'ditolak' ATAU bukti belum ada ATAU ada log penolakan
+            $show_form = ($cod->status_dp === 'ditolak' || empty($cod->bukti_dp) || $is_rejected_log);
+        ?>
 
-                                    <button type="submit" class="pixel-btn w-100 text-center py-2 bg-info text-dark border-dark">
-                                        <i class="fas fa-upload me-2"></i> SEND DP PROOF
-                                    </button>
-                                </form>
-                            <?php endif; ?>
-
-                        <?php elseif (isset($cod) && $cod->status_dp === 'diterima'): ?>
-                            <div class="alert alert-success rounded-0 border-dark text-dark">
-                                <i class="fas fa-check-circle me-2"></i> DP Lunas. Barang akan dikirim.
-                            </div>
-                        <?php endif; ?>
-
+        <?php if ($show_form): ?>
+            <form action="<?= base_url('pembayaran/process_dp'); ?>" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="id_penjualan" value="<?= $pesanan->id_penjualan; ?>">
+                
+                <div class="mb-3">
+                    <label class="pixel-font <?= $is_rejected_log ? 'text-danger' : 'text-dark'; ?> mb-2" style="font-size: 0.7rem;">
+                        <?= $is_rejected_log ? 'RE-UPLOAD DP PROOF (REQUIRED)' : 'UPLOAD DP PROOF'; ?>
+                    </label>
+                    
+                    <input type="file" name="bukti_dp" class="form-control rounded-0 <?= $is_rejected_log ? 'border-danger' : 'border-dark'; ?>" required>
+                    
+                    <?php if($is_rejected_log): ?>
+                        <small class="text-danger d-block mt-1" style="font-family: 'VT323'; font-size: 1rem;">
+                            * Bukti sebelumnya ditolak. Silakan unggah bukti baru yang valid.
+                        </small>
+                    <?php else: ?>
+                        <small class="text-muted" style="font-size: 0.7rem;">Format: JPG/PNG, Max 2MB</small>
                     <?php endif; ?>
+                </div>
+
+                <button type="submit" class="pixel-btn w-100 text-center py-2 <?= $is_rejected_log ? 'bg-danger text-white' : 'bg-info text-dark'; ?> border-dark">
+                    <i class="fas fa-upload me-2"></i> <?= $is_rejected_log ? 'RESEND EVIDENCE' : 'SEND DP PROOF'; ?>
+                </button>
+            </form>
+
+        <?php else: ?>
+            <div class="alert alert-info rounded-0 border-dark text-dark">
+                <i class="fas fa-search me-2"></i> Bukti DP sedang dicek oleh admin.
+            </div>
+        <?php endif; ?>
+
+    <?php elseif (isset($cod) && $cod->status_dp === 'diterima'): ?>
+        
+        <div class="alert alert-success rounded-0 border-dark text-dark">
+            <i class="fas fa-check-circle me-2"></i> DP Lunas. Barang akan dikirim.
+        </div>
+
+    <?php endif; ?>
+
+<?php endif; ?>
 
                     <hr class="border-dark my-4">
 

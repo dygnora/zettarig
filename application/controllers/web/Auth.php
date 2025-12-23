@@ -34,50 +34,57 @@ class Auth extends CI_Controller
     // PROSES LOGIN
     // ===============================
     public function process_login()
-    {
-        $email    = $this->security->xss_clean($this->input->post('email'));
-        $password = $this->input->post('password');
+{
+    // 1. Ambil input 'username' bukan 'email'
+    $username = $this->security->xss_clean($this->input->post('username'));
+    $password = $this->input->post('password');
 
-        if (!$email || !$password) {
-            $this->session->set_flashdata('error', 'Email dan password wajib diisi.');
-            redirect('auth/login');
-            return;
-        }
-
-        $customer = $this->db
-            ->where('email', $email)
-            ->where('status_aktif', 1)
-            ->limit(1)
-            ->get('customer')
-            ->row();
-
-        if (!$customer || !password_verify($password, $customer->password_hash)) {
-            $this->session->set_flashdata('error', 'Email atau password salah.');
-            redirect('auth/login');
-            return;
-        }
-
-        // SET SESSION LOGIN
-        $this->session->set_userdata([
-            'customer_logged_in' => true,
-            'customer_id'        => $customer->id_customer,
-            'customer_nama'      => $customer->nama,
-            'customer_email'     => $customer->email,
-            'customer_foto'      => $customer->foto_profil ?? 'default.jpg' 
-        ]);
-
-        // RESTORE KERANJANG DARI DB
-        $this->load->model('Produk_model');
-        $this->Produk_model->restore_cart_from_db($customer->id_customer);
-
-        $redirect = $this->session->userdata('redirect_after_login');
-        if ($redirect) {
-            $this->session->unset_userdata('redirect_after_login');
-            redirect($redirect);
-        } else {
-            redirect('akun');
-        }
+    // 2. Validasi input
+    if (!$username || !$password) {
+        $this->session->set_flashdata('error', 'Username dan password wajib diisi.');
+        redirect('auth/login');
+        return;
     }
+
+    // 3. Cari user berdasarkan 'username' di database
+    // Pastikan kolom 'username' ada di tabel 'customer' (sesuai DB Referensi.txt Anda)
+    $customer = $this->db->get_where('customer', ['username' => $username])->row();
+
+    // 4. Cek User & Password
+    if ($customer) {
+        // Cek Status Aktif
+        if ($customer->status_aktif == 0) {
+            $this->session->set_flashdata('error', 'Akun Anda telah dinonaktifkan.');
+            redirect('auth/login');
+            return;
+        }
+
+        // Verifikasi Password
+        if (password_verify($password, $customer->password_hash)) {
+            // Set Session
+            $this->session->set_userdata([
+                'customer_logged_in' => true,
+                'customer_id'        => $customer->id_customer,
+                'customer_nama'      => $customer->nama,
+                'customer_username'  => $customer->username, // Simpan username di session
+                'customer_email'     => $customer->email,
+                'customer_foto'      => $customer->foto_profil
+            ]);
+            
+            // Restore keranjang (jika ada logika ini)
+            $this->load->model('Produk_model');
+            $this->Produk_model->restore_cart_from_db($customer->id_customer);
+
+            redirect('akun'); // Redirect ke dashboard
+        } else {
+            $this->session->set_flashdata('error', 'Password salah.');
+            redirect('auth/login');
+        }
+    } else {
+        $this->session->set_flashdata('error', 'Username tidak ditemukan.');
+        redirect('auth/login');
+    }
+}
 
     // ===============================
     // REGISTER PAGE
@@ -94,39 +101,55 @@ class Auth extends CI_Controller
     }
 
     public function process_register()
-    {
-        $nama     = $this->security->xss_clean($this->input->post('nama'));
-        $email    = $this->security->xss_clean($this->input->post('email'));
-        $password = $this->input->post('password');
-        $no_hp    = $this->security->xss_clean($this->input->post('no_hp'));
-        $alamat   = $this->security->xss_clean($this->input->post('alamat'));
+{
+    // 1. Tangkap semua input (Termasuk Username yang sebelumnya tertinggal)
+    $nama     = $this->security->xss_clean($this->input->post('nama'));
+    $username = $this->security->xss_clean($this->input->post('username')); // <--- TAMBAHKAN INI
+    $email    = $this->security->xss_clean($this->input->post('email'));
+    $password = $this->input->post('password');
+    $no_hp    = $this->security->xss_clean($this->input->post('no_hp'));
+    $alamat   = $this->security->xss_clean($this->input->post('alamat'));
 
-        if (!$nama || !$email || !$password || !$no_hp || !$alamat) {
-            $this->session->set_flashdata('error', 'Semua field wajib diisi.');
-            redirect('auth/register');
-            return;
-        }
+    // 2. Validasi field kosong
+    if (!$nama || !$username || !$email || !$password || !$no_hp || !$alamat) {
+        $this->session->set_flashdata('error', 'Semua field wajib diisi, termasuk Username.');
+        redirect('auth/register');
+        return;
+    }
 
-        $exists = $this->db->where('email', $email)->count_all_results('customer');
-        if ($exists > 0) {
-            $this->session->set_flashdata('error', 'Email sudah terdaftar.');
-            redirect('auth/register');
-            return;
-        }
+    // 3. Validasi Duplikasi Email & Username (Penting karena UNIQUE di database)
+    $exists = $this->db->group_start()
+                       ->where('email', $email)
+                       ->or_where('username', $username)
+                       ->group_end()
+                       ->count_all_results('customer');
 
-        $this->db->insert('customer', [
-            'nama'          => $nama,
-            'email'         => $email,
-            'password_hash' => password_hash($password, PASSWORD_DEFAULT),
-            'no_hp'         => $no_hp,
-            'alamat'        => $alamat,
-            'status_aktif'  => 1,
-            'foto_profil'   => 'default.jpg'
-        ]);
+    if ($exists > 0) {
+        $this->session->set_flashdata('error', 'Email atau Username sudah terdaftar.');
+        redirect('auth/register');
+        return;
+    }
 
+    // 4. Proses Insert ke Database
+    $data = [
+        'nama'          => $nama,
+        'username'      => $username, // <--- Sekarang variabel ini sudah ada nilainya
+        'email'         => $email,
+        'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+        'no_hp'         => $no_hp,
+        'alamat'        => $alamat,
+        'status_aktif'  => 1,
+        'foto_profil'   => 'default.jpg'
+    ];
+
+    if ($this->db->insert('customer', $data)) {
         $this->session->set_flashdata('success', 'Registrasi berhasil. Silakan login.');
         redirect('auth/login');
+    } else {
+        $this->session->set_flashdata('error', 'Terjadi kegagalan sistem saat menyimpan data.');
+        redirect('auth/register');
     }
+}
 
     // ===============================
     // LOGOUT

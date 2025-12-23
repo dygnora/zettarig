@@ -81,12 +81,12 @@
                       $logoFile = FCPATH . 'assets/uploads/brand/' . $b->logo;
                       $logoUrl  = ($b->logo && file_exists($logoFile)) 
                                   ? base_url('assets/uploads/brand/' . $b->logo) 
-                                  : base_url('assets/img/no-image.png'); // Gambar default jika kosong
+                                  : base_url('assets/images/no-image.png'); // Gambar default jika kosong
                     ?>
                     <img src="<?= $logoUrl; ?>" 
                          alt="Logo" 
                          class="img-fluid img-thumbnail"
-                         style="height: 64px; width: auto;">
+                         style="height: 64px; width: 100px;">
                   </td>
 
                   <td>

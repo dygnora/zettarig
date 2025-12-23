@@ -55,7 +55,7 @@
               $imgUrl  = base_url('assets/uploads/produk/'.$d->gambar_produk);
 
               if (empty($d->gambar_produk) || !file_exists($imgPath)) {
-                  $imgUrl = base_url('assets/uploads/brand/default.png');
+                  $imgUrl = base_url('assets/images/no-image.png');
               }
             ?>
 

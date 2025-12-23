@@ -33,9 +33,13 @@
                 <?php foreach($hasil_produk as $p): ?>
                 <li class="item">
                   <div class="product-img">
-                    <div class="d-flex justify-content-center align-items-center bg-light text-secondary" style="width: 50px; height: 50px; border-radius: 5px;">
-                        <i class="fas fa-cube fa-lg"></i>
-                    </div>
+                    <?php if(!empty($p->gambar_produk)): ?>
+                        <img src="<?= base_url('assets/uploads/produk/'.$p->gambar_produk); ?>" alt="Product Image" class="img-size-50">
+                    <?php else: ?>
+                        <div class="d-flex justify-content-center align-items-center bg-light text-secondary" style="width: 50px; height: 50px; border-radius: 5px;">
+                            <i class="fas fa-cube fa-lg"></i>
+                        </div>
+                    <?php endif; ?>
                   </div>
                   <div class="product-info">
                     <a href="<?= base_url('admin/produk/edit/'.$p->id_produk); ?>" class="product-title">
@@ -49,7 +53,7 @@
                         <span class="badge <?= $badge_color; ?> float-right">Stok: <?= $p->stok; ?></span>
                     </a>
                     <span class="product-description">
-                      <span class="text-dark font-weight-bold">Rp <?= number_format($p->harga ?? 0, 0, ',', '.'); ?></span>
+                      <span class="text-dark font-weight-bold">Rp <?= number_format($p->harga_jual ?? 0, 0, ',', '.'); ?></span>
                       &bull; 
                       <a href="<?= base_url('admin/produk/edit/'.$p->id_produk); ?>" class="text-sm">Edit</a>
                     </span>
@@ -99,7 +103,6 @@
                     <div class="flex-grow-1" style="min-width: 0;">
                         <h6 class="mb-0 font-weight-bold text-dark text-truncate">
                             <?= $c->nama; ?>
-                            
                             <?php if($c->status_aktif): ?>
                                 <small><i class="fas fa-circle text-success ml-1" style="font-size: 8px;" title="Aktif"></i></small>
                             <?php else: ?>
@@ -167,7 +170,7 @@
                         </div>
                         
                         <p class="mb-1 text-sm">
-                            Customer: <strong><?= $t->nama_customer; ?></strong>
+                            Customer: <strong><?= $t->nama ?? 'Guest'; ?></strong>
                         </p>
                         
                         <div class="d-flex w-100 justify-content-between align-items-center mt-2">

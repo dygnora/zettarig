@@ -1,3 +1,111 @@
+<style>
+    /* --- REDESIGN PIXEL CARD --- */
+    .pixel-product-card {
+        background: #1a1a2e; /* Dark Blue Background */
+        border: 4px solid #000;
+        position: relative;
+        transition: all 0.2s cubic-bezier(0, 0, 0.2, 1);
+        box-shadow: 6px 6px 0px #000; /* Hard Shadow Retro */
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pixel-product-card:hover {
+        transform: translate(-4px, -4px);
+        box-shadow: 10px 10px 0px #00ffff; /* Neon Cyan Shadow on Hover */
+        border-color: #fff;
+    }
+
+    /* --- IMAGE CONTAINER FIX --- */
+    .pixel-img-wrapper {
+        height: 220px; /* Tinggi tetap agar rapi */
+        width: 100%;
+        background-color: #ffffff; /* Background putih agar komponen terlihat jelas */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 4px solid #000;
+        position: relative;
+        overflow: hidden;
+        padding: 20px; /* Jarak agar gambar tidak nempel pinggir */
+    }
+
+    .pixel-img-wrapper img {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain; /* KUNCI: Agar gambar tidak gepeng/terpotong */
+        filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2));
+        transition: transform 0.3s;
+    }
+
+    .pixel-product-card:hover .pixel-img-wrapper img {
+        transform: scale(1.1); /* Zoom effect saat hover */
+    }
+
+    /* --- BADGES --- */
+    .pixel-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-family: 'VT323', monospace;
+        font-size: 1.1rem;
+        padding: 2px 8px;
+        border: 2px solid #000;
+        z-index: 10;
+        box-shadow: 3px 3px 0px rgba(0,0,0,0.5);
+    }
+    
+    .bg-retro-success { background-color: #00ff00; color: #000; font-weight: bold; }
+    .bg-retro-danger { background-color: #ff0055; color: #fff; font-weight: bold; }
+
+    /* --- TEXT & BUTTONS --- */
+    .card-info {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-title-retro {
+        font-family: 'Press Start 2P', cursive; /* Atau font pixel pilihan Anda */
+        font-size: 0.7rem; /* Font pixel biasanya besar, jadi kecilkan rem-nya */
+        line-height: 1.4;
+        color: #fff;
+        margin-bottom: 10px;
+        min-height: 35px; /* Menjaga tinggi judul agar sejajar */
+    }
+
+    .price-tag {
+        font-family: 'VT323', monospace;
+        font-size: 1.6rem;
+        color: #facc15; /* Kuning Retro */
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .btn-pixel-block {
+        display: block;
+        width: 100%;
+        background: #3b82f6;
+        color: white;
+        border: 2px solid #000;
+        font-family: 'VT323', monospace;
+        font-size: 1.2rem;
+        text-align: center;
+        padding: 8px 0;
+        text-decoration: none;
+        margin-top: auto;
+    }
+    
+    .btn-pixel-block:hover {
+        background: #2563eb;
+        color: #fff;
+    }
+</style>
+
 <section class="position-relative bg-grid py-5 d-flex align-items-center"
          style="min-height: 90vh; overflow: hidden;">
 
@@ -60,10 +168,6 @@
                     <a href="<?= base_url('produk'); ?>" class="pixel-btn fs-5">
                         <i class="fas fa-shopping-bag me-2"></i> SHOP NOW
                     </a>
-                    <a href="<?= base_url('rakit'); ?>"
-                       class="pixel-btn bg-dark text-white border-white fs-5">
-                        <i class="fas fa-tools me-2"></i> RAKIT PC
-                    </a>
                 </div>
 
             </div>
@@ -100,83 +204,148 @@
     </div>
 </section>
 
-<section class="container py-5">
-    <div class="d-flex justify-content-between align-items-end mb-4">
-        <div>
-            <small class="text-uppercase text-muted fw-bold">Select Category</small>
-            <h2 class="pixel-font">HARDWARE</h2>
-        </div>
-        <a href="<?= base_url('produk'); ?>" class="text-decoration-none text-white hover-underline">
-            View All <i class="fas fa-arrow-right"></i>
-        </a>
-    </div>
+<style>
+    /* Desain Kartu Kategori */
+    .category-card {
+        background: rgba(15, 15, 25, 0.9);
+        border: 2px solid #333;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        text-decoration: none !important;
+        display: block;
+    }
 
-    <div class="row g-3">
-        <?php 
-        $cats = [
-            ['Processor', 'cpu', 'bg-primary'],
-            ['VGA Card', 'tv', 'bg-danger'],
-            ['Motherboard', 'chess-board', 'bg-success'],
-            ['RAM', 'memory', 'bg-warning'],
-            ['Storage', 'hdd', 'bg-info'],
-            ['Casing', 'box', 'bg-secondary']
-        ];
-        foreach ($cats as $c): ?>
-        <div class="col-6 col-md-2">
-            <a href="<?= base_url('produk?kategori='.strtolower($c[0])); ?>" class="text-decoration-none">
-                <div class="pixel-card p-3 text-center h-100 hover-up bg-dark">
-                    <div class="mb-2 rounded-circle d-inline-flex align-items-center justify-content-center" 
-                         style="width: 50px; height: 50px; background: rgba(255,255,255,0.1);">
-                        <i class="fas fa-<?= $c[1]; ?> fs-4 text-white"></i>
-                    </div>
-                    <h6 class="pixel-font text-white mb-0" style="font-size: 0.7rem;"><?= $c[0]; ?></h6>
-                </div>
-            </a>
+    /* Efek Hover Khas Zettarig */
+    .category-card:hover {
+        border-color: #00ffff;
+        transform: translateY(-5px);
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+    }
+
+    .category-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        transition: all 0.3s;
+    }
+
+    .category-card:hover .category-icon {
+        text-shadow: 0 0 10px currentColor;
+        transform: scale(1.1);
+    }
+
+    /* Garis Aksen Bawah sesuai Warna */
+    .accent-line {
+        height: 3px;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+    }
+</style>
+
+<section class="py-5 bg-grid">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="pixel-font text-white mb-0 glitch-text" data-text="SELECT HARDWARE">SELECT HARDWARE</h2>
+            <div class="mt-2" style="height: 2px; width: 100px; background: #ff00de; margin: 0 auto;"></div>
         </div>
-        <?php endforeach; ?>
+
+        <div class="row g-4 justify-content-center">
+            
+            <div class="col-md-4 col-sm-6">
+    <a href="<?= base_url('produk/kategori/processor'); ?>" class="category-card p-4 text-center">
+        <div class="category-icon text-info">
+            <i class="fa-solid fa-microchip"></i>
+        </div>
+        <h5 class="pixel-font text-white mb-2" style="font-size: 0.8rem;">PROCESSOR</h5>
+        <small class="text-muted d-block" style="font-family: 'VT323'; font-size: 1rem;">Main Processing Unit</small>
+        <div class="accent-line bg-info"></div>
+    </a>
+</div>
+
+<div class="col-md-4 col-sm-6">
+    <a href="<?= base_url('produk/kategori/vga'); ?>" class="category-card p-4 text-center">
+        <div class="category-icon text-warning">
+            <i class="fa-solid fa-vr-cardboard"></i>
+        </div>
+        <h5 class="pixel-font text-white mb-2" style="font-size: 0.8rem;">VGA / GPU</h5>
+        <small class="text-muted d-block" style="font-family: 'VT323'; font-size: 1rem;">Graphics Processing</small>
+        <div class="accent-line bg-warning"></div>
+    </a>
+</div>
+
+<div class="col-md-4 col-sm-6">
+    <a href="<?= base_url('produk/kategori/ram'); ?>" class="category-card p-4 text-center">
+        <div class="category-icon text-danger">
+            <i class="fa-solid fa-memory"></i>
+        </div>
+        <h5 class="pixel-font text-white mb-2" style="font-size: 0.8rem;">MEMORY RAM</h5>
+        <small class="text-muted d-block" style="font-family: 'VT323'; font-size: 1rem;">Random Access Memory</small>
+        <div class="accent-line bg-danger"></div>
+    </a>
+</div>
+
+        </div>
     </div>
 </section>
 
 <section class="bg-grid py-5 border-top border-dark">
     <div class="container">
+        
         <div class="text-center mb-5">
-            <span class="badge bg-danger pixel-font p-2 mb-2">NEW ARRIVALS</span>
-            <h2 class="pixel-font">FRESH FROM INVENTORY</h2>
+            <div class="d-inline-block border border-2 border-danger px-3 py-1 mb-2 bg-dark">
+                <span class="text-danger pixel-font" style="font-size: 0.8rem;">NEW ARRIVALS</span>
+            </div>
+            <h2 class="pixel-font text-white glitch-text" data-text="FRESH FROM INVENTORY">FRESH FROM INVENTORY</h2>
         </div>
 
         <div class="row g-4">
-            <?php 
-            // Simulasi Data (Nanti diganti $featured)
-            for ($i = 1; $i <= 4; $i++): 
-            ?>
-            <div class="col-md-3 col-6">
-                <div class="card pixel-card h-100 border-0 bg-dark text-white position-relative">
-                    
-                    <div class="position-absolute top-0 start-0 bg-success px-2 py-1 m-2 border border-dark" style="z-index: 2; font-size: 0.7rem;">
-                        READY STOCK
-                    </div>
-
-                    <div class="p-3 bg-white d-flex align-items-center justify-content-center" style="height: 180px; border-bottom: 4px solid #000;">
-                        <img src="https://dummyimage.com/300x300/eee/000&text=GPU+RTX+4060" class="img-fluid" alt="Produk">
-                    </div>
-                    
-                    <div class="card-body p-3 d-flex flex-column">
-                        <small class="text-muted mb-1">VGA Card</small>
-                        <h5 class="card-title pixel-font fs-6 mb-3 text-truncate">GeForce RTX 4060 Ti 8GB</h5>
+            <?php if (!empty($new_arrivals)): ?>
+                <?php foreach ($new_arrivals as $item): ?>
+                    <div class="col-lg-3 col-md-6 col-sm-12">
                         
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="fw-bold text-info" style="font-family: 'VT323'; font-size: 1.4rem;">Rp 6.500.000</span>
+                        <div class="pixel-product-card">
+                            
+                            <?php if ($item->stok > 0): ?>
+                                <div class="pixel-badge bg-retro-success">READY STOCK</div>
+                            <?php else: ?>
+                                <div class="pixel-badge bg-retro-danger">SOLD OUT</div>
+                            <?php endif; ?>
+
+                            <div class="pixel-img-wrapper">
+                                <img src="<?= !empty($item->gambar_produk) 
+                                            ? base_url('assets/uploads/produk/'.$item->gambar_produk) 
+                                            : base_url('assets/images/no-image.png'); ?>" 
+                                     alt="<?= htmlspecialchars($item->nama_produk); ?>">
                             </div>
-                            <button class="pixel-btn w-100 py-2">
-                                + ADD TO CART
-                            </button>
+
+                            <div class="card-info">
+                                <h5 class="product-title-retro text-uppercase">
+                                    <?= htmlspecialchars(character_limiter($item->nama_produk, 30)); ?>
+                                </h5>
+                                
+                                <span class="price-tag">
+                                    Rp <?= number_format($item->harga_jual, 0, ',', '.'); ?>
+                                </span>
+
+                                <a href="<?= base_url('produk/detail/'.$item->slug_produk); ?>" 
+                                   class="btn-pixel-block">
+                                    > VIEW DETAIL_
+                                </a>
+                            </div>
                         </div>
-                    </div>
+                        </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12 text-center text-muted py-5">
+                    <p class="pixel-font text-white">SYSTEM MESSAGE: [NO_DATA_FOUND]</p>
+                    <small>Belum ada produk baru yang ditambahkan.</small>
                 </div>
-            </div>
-            <?php endfor; ?>
+            <?php endif; ?>
         </div>
+
     </div>
 </section>
 

@@ -72,7 +72,7 @@
                   $imgPath = FCPATH.'assets/uploads/produk/'.$p->gambar_produk;
                   $imgUrl  = ($p->gambar_produk && file_exists($imgPath))
                              ? base_url('assets/uploads/produk/'.$p->gambar_produk)
-                             : base_url('assets/img/no-image.png'); // Gunakan placeholder jika kosong
+                             : base_url('assets/images/no-image.png'); // Gunakan placeholder jika kosong
                 ?>
 
                 <tr>

@@ -94,6 +94,7 @@ class Produk_admin extends MY_Controller
             'deskripsi'     => $this->input->post('deskripsi'),
             'harga_modal'   => $this->input->post('harga_modal'),
             'harga_jual'    => $this->input->post('harga_jual'),
+            'deskripsi'   => $this->input->post('deskripsi'),
             'stok'          => 0, 
             'status_aktif'  => $this->input->post('status_aktif'),
             'gambar_produk' => $gambar
@@ -137,20 +138,21 @@ class Produk_admin extends MY_Controller
 
         $gambar = $this->_upload_gambar();
         $nama_produk = $this->input->post('nama_produk', true);
-        
-        // Regenerate slug jika nama berubah
         $slug = url_title($nama_produk, 'dash', true);
+
+        // Ambil input status_aktif, jika kosong (tidak ada di form), gunakan status yang sudah ada di DB
+        $status_form = $this->input->post('status_aktif');
+        $status_final = ($status_form !== null) ? $status_form : $produk->status_aktif;
 
         $data = [
             'nama_produk'   => $nama_produk,
-            'slug_produk'   => $slug, // <--- FIXED
+            'slug_produk'   => $slug,
             'id_kategori'   => $this->input->post('id_kategori'),
             'id_brand'      => $this->input->post('id_brand'),
             'deskripsi'     => $this->input->post('deskripsi'),
             'harga_modal'   => $this->input->post('harga_modal'),
             'harga_jual'    => $this->input->post('harga_jual'),
-            'status_aktif'  => $this->input->post('status_aktif')
-            // 'berat_gram' DIHAPUS
+            'status_aktif'  => $status_final // <--- GUNAKAN VARIABEL INI
         ];
 
         if ($gambar) {

@@ -52,7 +52,7 @@
 
             <div class="mb-2">
               <img id="preview-logo"
-                   src="<?= base_url('assets/uploads/brand/default.png'); ?>"
+                   src="<?= base_url('assets/images/no-image.png'); ?>"
                    class="img-thumbnail"
                    style="max-height:120px">
             </div>

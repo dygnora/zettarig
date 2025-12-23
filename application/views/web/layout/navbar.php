@@ -45,11 +45,13 @@ if ($is_login) {
       ABOUT
     </a>
 
-    <?php if ($is_login): ?>
-      <a href="<?= base_url('cart'); ?>" class="pixel-tab">
-        CART (<?= (int)$cart_count; ?>)
-      </a>
-    <?php endif; ?>
+<?php if ($is_login): ?>
+  <a href="<?= base_url('cart'); ?>"
+     class="pixel-tab <?= strpos($current, 'cart') === 0 ? 'active' : ''; ?>">
+    CART (<?= (int)$cart_count; ?>)
+  </a>
+<?php endif; ?>
+
   </div>
 
   <div class="pixel-user">
